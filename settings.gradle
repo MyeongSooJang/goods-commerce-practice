@@ -1,1 +1,5 @@
 rootProject.name = 'goods-commerce-practice'
+
+include 'discovery'
+include 'config'
+include 'gateway'
