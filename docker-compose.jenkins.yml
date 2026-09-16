@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   jenkins:
-    image: jenkins/jenkins:lts-jdk17
+    image: jenkins/jenkins:lts-jdk21
     container_name: jenkins
     ports:
       - "9090:8080"      # 8080은 gateway가 사용 중 → 9090으로 접속
