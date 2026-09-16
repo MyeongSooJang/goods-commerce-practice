@@ -2,15 +2,31 @@ pipeline {
     agent any
 
     stages {
-        stage('Hello') {
+        stage('Checkout') {
             steps {
-                echo 'Hello, Jenkins!'
+                checkout scm
             }
         }
-        stage('Build Check') {
+
+        stage('Build') {
             steps {
-                echo 'Pipeline is working!'
+                sh './gradlew build -x test'
             }
+        }
+
+        stage('Test') {
+            steps {
+                sh './gradlew test'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '빌드 및 테스트 성공'
+        }
+        failure {
+            echo '빌드 또는 테스트 실패'
         }
     }
 }
