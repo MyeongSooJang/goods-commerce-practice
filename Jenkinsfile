@@ -47,9 +47,11 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                sh "docker stop ${CONTAINER_NAME} || true"
-                sh "docker rm ${CONTAINER_NAME} || true"
-                sh "docker run -d --name ${CONTAINER_NAME} -p ${HOST_PORT}:8080 ${IMAGE_NAME}:latest"
+                withCredentials([string(credentialsId: 'JWT_SECRET_KEY', variable: 'JWT_SECRET_KEY')]) {
+                    sh "docker stop ${CONTAINER_NAME} || true"
+                    sh "docker rm ${CONTAINER_NAME} || true"
+                    sh "docker run -d --name ${CONTAINER_NAME} -p ${HOST_PORT}:8080 -e JWT_SECRET_KEY=${JWT_SECRET_KEY} ${IMAGE_NAME}:latest"
+                }
             }
         }
     }
