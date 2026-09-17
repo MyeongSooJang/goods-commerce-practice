@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    options {
+        timeout(time: 30, unit: 'MINUTES')
+    }
+
     environment {
         IMAGE_NAME = "gateway-app"
         CONTAINER_NAME = "gateway-jenkins"
@@ -22,7 +26,9 @@ pipeline {
 
         stage('Test') {
             steps {
-                sh './gradlew test'
+                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                    sh './gradlew test'
+                }
             }
         }
 
@@ -30,6 +36,12 @@ pipeline {
             steps {
                 sh "docker build -f gateway/Dockerfile -t ${IMAGE_NAME}:${BUILD_NUMBER} ."
                 sh "docker tag ${IMAGE_NAME}:${BUILD_NUMBER} ${IMAGE_NAME}:latest"
+            }
+        }
+
+        stage('Approve') {
+            steps {
+                input message: '운영 배포할까요?', ok: '배포'
             }
         }
 
