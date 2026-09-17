@@ -40,12 +40,18 @@ public class BidFeeChargeCompletedConsumer {
             return;
         }
 
-        try {
-            bidUpdateService.activate(message.bidId());
-            log.info("Bid confirmed: bidId={}, auctionId={}", message.bidId(), message.auctionId());
-        } catch (ObjectOptimisticLockingFailureException e) {
-            log.warn("낙관락 재시도 소진 — 입찰 취소: bidId={}", message.bidId());
-            bidUpdateService.cancel(message.bidId());
+        int maxRetry = 3;
+        for (int attempt = 1; attempt <= maxRetry; attempt++) {
+            try {
+                bidUpdateService.activate(message.bidId());
+                log.info("Bid confirmed: bidId={}, auctionId={}", message.bidId(), message.auctionId());
+                return;
+            } catch (ObjectOptimisticLockingFailureException e) {
+                if (attempt == maxRetry) {
+                    log.warn("낙관락 재시도 소진 — 입찰 취소: bidId={}", message.bidId());
+                    bidUpdateService.cancel(message.bidId());
+                }
+            }
         }
     }
 }
