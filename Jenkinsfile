@@ -59,14 +59,14 @@ pipeline {
     post {
         success {
             echo "배포 완료 - http://localhost:${HOST_PORT} 에서 확인 가능"
-            githubNotify status: 'SUCCESS', description: 'Build and deploy succeeded'
+            publishChecks name: 'Jenkins CI', status: 'COMPLETED', conclusion: 'SUCCESS', summary: 'Build and deploy succeeded'
         }
         failure {
             echo '빌드 또는 배포 실패'
-            githubNotify status: 'FAILURE', description: 'Build or deploy failed'
+            publishChecks name: 'Jenkins CI', status: 'COMPLETED', conclusion: 'FAILURE', summary: 'Build or deploy failed'
         }
         unstable {
-            githubNotify status: 'FAILURE', description: 'Tests failed'
+            publishChecks name: 'Jenkins CI', status: 'COMPLETED', conclusion: 'FAILURE', summary: 'Tests failed'
         }
     }
 }
