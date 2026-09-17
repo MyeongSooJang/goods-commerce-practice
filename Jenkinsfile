@@ -59,14 +59,14 @@ pipeline {
     post {
         success {
             echo "배포 완료 - http://localhost:${HOST_PORT} 에서 확인 가능"
-            publishChecks name: 'Jenkins CI', status: 'COMPLETED', conclusion: 'SUCCESS', summary: 'Build and deploy succeeded'
+            step([$class: 'GitHubCommitStatusSetter', statusResultSource: [$class: 'ConditionalStatusResultSource', results: [[$class: 'AnyBuildResult', message: 'Build succeeded', state: 'SUCCESS']]]])
         }
         failure {
             echo '빌드 또는 배포 실패'
-            publishChecks name: 'Jenkins CI', status: 'COMPLETED', conclusion: 'FAILURE', summary: 'Build or deploy failed'
+            step([$class: 'GitHubCommitStatusSetter', statusResultSource: [$class: 'ConditionalStatusResultSource', results: [[$class: 'AnyBuildResult', message: 'Build failed', state: 'FAILURE']]]])
         }
         unstable {
-            publishChecks name: 'Jenkins CI', status: 'COMPLETED', conclusion: 'FAILURE', summary: 'Tests failed'
+            step([$class: 'GitHubCommitStatusSetter', statusResultSource: [$class: 'ConditionalStatusResultSource', results: [[$class: 'AnyBuildResult', message: 'Tests failed', state: 'FAILURE']]]])
         }
     }
 }
