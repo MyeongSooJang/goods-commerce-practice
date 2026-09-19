@@ -10,7 +10,7 @@
 - **Messaging**: Apache Kafka
 - **Cache**: Redis
 - **Search**: Elasticsearch
-- **Infra / Deploy**: Docker, Kubernetes (k3s), GitHub Actions (CI/CD)
+- **Infra / Deploy**: Docker, Docker Compose, Jenkins (CI/CD)
 - **Monitoring**: Prometheus, Grafana
 
 ## 아키텍처 개요
@@ -90,12 +90,11 @@ PostgreSQL, Kafka, Redis, Elasticsearch 등 인프라와 각 서비스가 함께
 
 ## CI/CD
 
-- **CI** (`.github/workflows/ci.yml`): PR 생성 시 변경된 모듈만 감지해 `./gradlew :<module>:build` 실행
-- **CD** (`.github/workflows/cd.yml`): `main` 브랜치 push 시 변경된 모듈의 Docker 이미지를 빌드해 GHCR에 push하고, self-hosted k3s 클러스터에 `kubectl`로 배포
+- **Jenkins** (`Jenkinsfile`): `main` 브랜치 push 시 변경된 모듈만 테스트하고, 해당 서비스의 Docker 이미지만 다시 빌드해 `docker compose`로 재배포
 
 ## 모니터링
 
-Prometheus/Grafana를 통해 서비스 메트릭을 수집·시각화합니다. K8s 환경 설정은 `k8s/monitoring/`, 로컬 환경은 `docker-compose.local.yml`을 참고하세요.
+Prometheus/Grafana를 통해 서비스 메트릭을 수집·시각화합니다. 설정은 `monitoring/prometheus.yml`, 로컬 환경은 `docker-compose.local.yml`을 참고하세요.
 
 ## 디렉토리 구조
 
@@ -107,7 +106,6 @@ Prometheus/Grafana를 통해 서비스 메트릭을 수집·시각화합니다. 
 ├── common-monitoring  # 공통 모니터링 라이브러리
 ├── db-migration       # 스키마 마이그레이션/시드 배치
 ├── docs/              # 설계/트러블슈팅 문서
-├── k8s/               # Kubernetes 배포 매니페스트
 ├── monitoring/        # 로컬 Prometheus 설정
 └── scripts/           # 개발 편의 스크립트
 ```
