@@ -15,8 +15,8 @@ spring:
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://${DB_HOST}:${DB_PORT:5432}/${DB_NAME}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    username: ${DB_USER_NAME}
+    password: ${DB_USER_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: validate
@@ -55,7 +55,7 @@ jwt:
   access-expiration: ${JWT_ACCESS_EXPIRATION:3600000}
   refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000}
 
-# Eureka discovery is disabled in Kubernetes. Service discovery is handled by K8s Service DNS.
+# Eureka discovery is disabled.
 # eureka:
 #   instance:
 #     prefer-ip-address: true
@@ -69,8 +69,8 @@ aws:
   s3:
     bucket: ${AWS_S3_BUCKET}
     region: ${AWS_REGION:ap-northeast-2}
-    access-key: ${AWS_ACCESS_KEY_ID}
-    secret-key: ${AWS_SECRET_ACCESS_KEY}
+    access-key: ${AWS_ACCESS_KEY}
+    secret-key: ${AWS_SECRET_KEY}
     profile-image-prefix: ${AWS_S3_PROFILE_IMAGE_PREFIX:members/profile}
     put-presign-expiration-seconds: ${AWS_S3_PUT_PRESIGN_EXPIRATION_SECONDS:300}
     get-presign-expiration-seconds: ${AWS_S3_GET_PRESIGN_EXPIRATION_SECONDS:600}

@@ -5,6 +5,11 @@ pipeline {
         timeout(time: 60, unit: 'MINUTES')
     }
 
+    environment {
+        APP_SERVICES = 'product cart member order payment settlement notification gateway auction ai db-migration'
+        COMMON_MODULES = 'common-security common-monitoring common-messaging'
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -12,21 +17,86 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Detect Changes') {
             steps {
-                sh './gradlew build -x test'
+                script {
+                    def appServices = env.APP_SERVICES.split(' ') as List
+                    def commonModules = env.COMMON_MODULES.split(' ') as List
+
+                    def changed = null
+                    if (env.GIT_PREVIOUS_SUCCESSFUL_COMMIT) {
+                        def baseOk = sh(script: 'git cat-file -e "$GIT_PREVIOUS_SUCCESSFUL_COMMIT^{commit}"', returnStatus: true) == 0
+                        if (baseOk) {
+                            def diff = sh(script: 'git diff --name-only "$GIT_PREVIOUS_SUCCESSFUL_COMMIT" HEAD', returnStdout: true).trim()
+                            changed = diff ? diff.split('\n') as List : []
+                        }
+                    }
+
+                    def buildAll = (changed == null)
+                    def composeChanged = false
+                    def elasticsearch = false
+                    def services = []
+                    def testModules = []
+
+                    if (!buildAll) {
+                        for (f in changed) {
+                            def top = f.contains('/') ? f.split('/')[0] : ''
+                            if (f in ['build.gradle', 'settings.gradle', 'gradle.properties', 'gradlew', 'gradlew.bat'] || f.startsWith('gradle/')) {
+                                buildAll = true
+                            } else if (f == 'docker-compose.yml') {
+                                composeChanged = true
+                            } else if (f.startsWith('product/docker/elasticsearch/')) {
+                                elasticsearch = true
+                            } else if (top in appServices) {
+                                services << top
+                            } else if (top in commonModules) {
+                                testModules << top
+                                appServices.each { svc ->
+                                    if (readFile("${svc}/build.gradle").contains("project(':${top}')")) {
+                                        services << svc
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (buildAll) {
+                        services = appServices
+                        elasticsearch = true
+                    }
+                    services = services.unique()
+                    testModules = (testModules + services).unique()
+
+                    env.BUILD_ALL = buildAll.toString()
+                    env.COMPOSE_CHANGED = composeChanged.toString()
+                    env.TEST_MODULES = testModules.join(' ')
+                    env.DEPLOY_SERVICES = (services + (elasticsearch ? ['elasticsearch'] : [])).join(' ')
+                    env.NEED_DEPLOY = (buildAll || composeChanged || env.DEPLOY_SERVICES.trim()) ? 'true' : 'false'
+
+                    echo "buildAll=${env.BUILD_ALL}, composeChanged=${env.COMPOSE_CHANGED}"
+                    echo "test modules: ${env.TEST_MODULES ?: '(none)'}"
+                    echo "deploy services: ${env.DEPLOY_SERVICES ?: '(none)'}"
+                    echo "changed files: ${changed == null ? '(no base commit, full build)' : changed}"
+                }
             }
         }
 
         stage('Test') {
+            when { expression { env.TEST_MODULES?.trim() } }
             steps {
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                    sh './gradlew test'
+                script {
+                    if (env.BUILD_ALL == 'true') {
+                        sh './gradlew test'
+                    } else {
+                        def tasks = env.TEST_MODULES.split(' ').collect { ":${it}:test" }.join(' ')
+                        sh "./gradlew ${tasks}"
+                    }
                 }
             }
         }
 
         stage('Generate .env') {
+            when { expression { env.NEED_DEPLOY == 'true' } }
             steps {
                 withCredentials([
                     string(credentialsId: 'DB_NAME', variable: 'DB_NAME'),
@@ -102,10 +172,22 @@ pipeline {
         }
 
         stage('Deploy') {
+            when { expression { env.NEED_DEPLOY == 'true' } }
             steps {
-                sh 'docker compose down || true'
-                sh 'docker compose build'
-                sh 'docker compose up -d'
+                script {
+                    if (env.BUILD_ALL == 'true') {
+                        sh 'docker compose build'
+                        sh 'docker compose up -d'
+                    } else {
+                        if (env.DEPLOY_SERVICES?.trim()) {
+                            sh 'docker compose build $DEPLOY_SERVICES'
+                            sh 'docker compose up -d --no-deps $DEPLOY_SERVICES'
+                        }
+                        if (env.COMPOSE_CHANGED == 'true') {
+                            sh 'docker compose up -d'
+                        }
+                    }
+                }
             }
         }
     }
