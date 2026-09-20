@@ -92,7 +92,7 @@ services:
       retries: 10
 
   kibana:
-    image: kibana:9.0.0
+    image: docker.elastic.co/kibana/kibana:9.0.0
     container_name: goods-mall-kibana
     restart: unless-stopped
     depends_on:
