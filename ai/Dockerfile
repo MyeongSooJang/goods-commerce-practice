@@ -13,6 +13,6 @@ WORKDIR /app
 
 COPY --from=builder /workspace/ai/build/libs/ai-0.0.1-SNAPSHOT.jar app.jar
 
-EXPOSE 8091
+EXPOSE 8088
 
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]

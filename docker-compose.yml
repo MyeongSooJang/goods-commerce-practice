@@ -21,35 +21,26 @@ services:
       # 스키마 기준은 Flyway로 단일화합니다. seed SQL은 로컬 테스트 시 수동 실행용으로만 사용합니다.
       - ./db-migration/src/main/resources/db/seed/dev_seed_payment_settlement.sql:/opt/seed/dev_seed_payment_settlement.sql:ro
 
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.5.0
-    container_name: goods-mall-zookeeper
-    restart: unless-stopped
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-    ports:
-      - "2181:2181"
-
   kafka:
     image: confluentinc/cp-kafka:7.5.0
     container_name: goods-mall-kafka
     restart: unless-stopped
-    depends_on:
-      zookeeper:
-        condition: service_started
     ports:
       - "9092:9092"
       - "29092:29092"
     environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:29092,CONTROLLER://0.0.0.0:9093
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
     healthcheck:
       test: ["CMD-SHELL", "cub kafka-ready -b localhost:9092 1 20"]
       interval: 10s
@@ -101,7 +92,7 @@ services:
       retries: 10
 
   kibana:
-    image: kibana:8.13.4
+    image: kibana:9.0.0
     container_name: goods-mall-kibana
     restart: unless-stopped
     depends_on:
@@ -213,7 +204,7 @@ services:
       db-migration:
         condition: service_completed_successfully
     environment:
-      SPRING_PROFILES_ACTIVE: local
+      SPRING_PROFILES_ACTIVE: prod
       DB_URL: ${DB_URL}
       DB_USER_NAME: ${DB_USER_NAME}
       DB_USER_PASSWORD: ${DB_USER_PASSWORD}
@@ -387,10 +378,6 @@ services:
       AI_PRODUCT_API_PAGE_SIZE: ${AI_PRODUCT_API_PAGE_SIZE:-200}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       AI_EMBEDDING_MODEL: ${AI_EMBEDDING_MODEL:-text-embedding-3-small}
-      EUREKA_DEFAULT_ZONE: ${EUREKA_DEFAULT_ZONE}
-      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "false"
-      EUREKA_INSTANCE_HOSTNAME: ai
-      CONFIG_SERVER_URL: http://config:8888
     ports:
       - "8088:8088"
 
