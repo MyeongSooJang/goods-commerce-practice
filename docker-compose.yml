@@ -2,6 +2,7 @@ services:
   postgres:
     image: pgvector/pgvector:pg18
     container_name: goods-mall-postgres
+    restart: unless-stopped
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER_NAME}
@@ -23,6 +24,7 @@ services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     container_name: goods-mall-zookeeper
+    restart: unless-stopped
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
@@ -32,6 +34,7 @@ services:
   kafka:
     image: confluentinc/cp-kafka:7.5.0
     container_name: goods-mall-kafka
+    restart: unless-stopped
     depends_on:
       zookeeper:
         condition: service_started
@@ -56,6 +59,7 @@ services:
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
     container_name: goods-mall-kafka-ui
+    restart: unless-stopped
     depends_on:
       kafka:
         condition: service_healthy
@@ -69,6 +73,7 @@ services:
   redis:
     image: redis:7.4-alpine
     container_name: goods-mall-redis
+    restart: unless-stopped
     ports:
       - "6379:6379"
     healthcheck:
@@ -82,12 +87,30 @@ services:
       context: .
       dockerfile: product/docker/elasticsearch/Dockerfile
     container_name: goods-mall-elasticsearch
+    restart: unless-stopped
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
     ports:
       - "9200:9200"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  kibana:
+    image: kibana:8.13.4
+    container_name: goods-mall-kibana
+    restart: unless-stopped
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
 
   db-migration:
     build:
@@ -112,6 +135,7 @@ services:
       context: .
       dockerfile: payment/Dockerfile
     container_name: goods-mall-payment
+    restart: unless-stopped
     env_file:
       - .env
     depends_on:
@@ -140,6 +164,7 @@ services:
       context: .
       dockerfile: settlement/Dockerfile
     container_name: goods-mall-settlement
+    restart: unless-stopped
     env_file:
       - .env
     depends_on:
@@ -162,6 +187,7 @@ services:
       context: .
       dockerfile: gateway/Dockerfile
     container_name: goods-mall-gateway
+    restart: unless-stopped
     env_file:
       - .env
     environment:
@@ -174,6 +200,7 @@ services:
       context: .
       dockerfile: member/Dockerfile
     container_name: goods-mall-member
+    restart: unless-stopped
     env_file:
       - .env
     depends_on:
@@ -218,10 +245,13 @@ services:
       context: .
       dockerfile: product/Dockerfile
     container_name: goods-mall-product
+    restart: unless-stopped
     env_file:
       - .env
     depends_on:
       postgres:
+        condition: service_healthy
+      elasticsearch:
         condition: service_healthy
       db-migration:
         condition: service_completed_successfully
@@ -232,6 +262,7 @@ services:
       AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
       AWS_SECRET_KEY: ${AWS_SECRET_KEY}
       AWS_S3_BUCKET: ${AWS_S3_BUCKET}
+      ELASTICSEARCH_URI: http://elasticsearch:9200
     ports:
       - "8081:8081"
 
@@ -240,6 +271,7 @@ services:
       context: .
       dockerfile: cart/Dockerfile
     container_name: goods-mall-cart
+    restart: unless-stopped
     env_file:
       - .env
     depends_on:
@@ -259,6 +291,7 @@ services:
       context: .
       dockerfile: order/Dockerfile
     container_name: goods-mall-order
+    restart: unless-stopped
     env_file:
       - .env
     depends_on:
@@ -285,6 +318,7 @@ services:
       context: .
       dockerfile: notification/Dockerfile
     container_name: goods-mall-notification
+    restart: unless-stopped
     env_file:
       - .env
     depends_on:
@@ -307,6 +341,7 @@ services:
       context: .
       dockerfile: auction/Dockerfile
     container_name: goods-mall-auction
+    restart: unless-stopped
     env_file:
       - .env
     depends_on:
@@ -329,6 +364,7 @@ services:
       context: .
       dockerfile: ai/Dockerfile
     container_name: goods-mall-ai
+    restart: unless-stopped
     env_file:
       - .env
     depends_on:
