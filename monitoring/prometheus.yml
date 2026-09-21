@@ -3,15 +3,17 @@ global:
   evaluation_interval: 5s
 
 scrape_configs:
-  - job_name: auction-service
+  - job_name: 'spring-services'
     metrics_path: /actuator/prometheus
     static_configs:
       - targets:
-          - host.docker.internal:8090
-    labels:
-      service: auction
-
-  - job_name: prometheus
-    static_configs:
-      - targets:
-          - localhost:9090
+          - gateway:8080
+          - member:8083
+          - product:8081
+          - order:8084
+          - payment:8082
+          - settlement:8085
+          - cart:8086
+          - notification:8087
+          - auction:8090
+          - ai:8088
