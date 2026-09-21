@@ -1,4 +1,4 @@
-package com.example.member.infrastructure.persistence.jpa;
+package com.example.member.infrastructure.persistence;
 
 import com.example.member.domain.entity.Member;
 import com.example.member.domain.repository.MemberRepository;

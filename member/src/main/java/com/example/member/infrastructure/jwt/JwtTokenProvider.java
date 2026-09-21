@@ -1,4 +1,4 @@
-package com.example.member.infrastructure.security.jwt;
+package com.example.member.infrastructure.jwt;
 
 import com.example.member.domain.entity.Member;
 import com.example.member.infrastructure.redis.auth.ParsedAccessToken;

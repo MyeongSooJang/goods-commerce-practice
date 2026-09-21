@@ -25,7 +25,7 @@ import com.example.member.infrastructure.redis.auth.ParsedRefreshToken;
 import com.example.member.infrastructure.redis.auth.RefreshTokenStore;
 import com.example.member.infrastructure.redis.seller.SellerDraft;
 import com.example.member.infrastructure.redis.seller.SellerDraftStore;
-import com.example.member.infrastructure.security.jwt.JwtTokenProvider;
+import com.example.member.infrastructure.jwt.JwtTokenProvider;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
