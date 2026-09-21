@@ -14,7 +14,6 @@ import com.example.member.application.dto.command.WithdrawMemberCommand;
 import com.example.member.application.dto.result.CreateMemberResult;
 import com.example.member.application.dto.result.MemberResult;
 import com.example.member.application.dto.result.WithdrawMemberResult;
-import com.example.member.application.port.in.AuthUsecase;
 import com.example.member.application.port.out.MemberEventPort;
 import com.example.member.application.port.out.MemberOauthAccountPersistencePort;
 import com.example.member.application.port.out.MemberPersistencePort;
@@ -66,7 +65,7 @@ class MemberServiceTest {
     private MemberSignupProperties memberSignupProperties;
 
     @Mock
-    private AuthUsecase authUsecase;
+    private AuthService authService;
 
     @Mock
     private MemberWithdrawalCheckPort memberWithdrawalCheckPort;
@@ -379,7 +378,7 @@ class MemberServiceTest {
         assertEquals(MemberStatus.WITHDRAWN, result.status());
         verify(memberWithdrawalCheckPort).validateWithdrawable(member, "Bearer access-token");
         verify(memberOauthAccountPersistencePort).delete(oauthAccount);
-        verify(authUsecase).logoutAllSessions("Bearer access-token");
+        verify(authService).logoutAllSessions("Bearer access-token");
     }
 
     @Test
@@ -412,7 +411,7 @@ class MemberServiceTest {
         );
         assertEquals("MEMBER_WITHDRAWAL_ADMIN_FORBIDDEN", exception.getCode());
         verify(memberWithdrawalCheckPort, never()).validateWithdrawable(any(), any());
-        verify(authUsecase, never()).logoutAllSessions(any());
+        verify(authService, never()).logoutAllSessions(any());
     }
 
     @Test
@@ -446,7 +445,7 @@ class MemberServiceTest {
         );
         assertEquals("MEMBER_WITHDRAWAL_PASSWORD_INVALID", exception.getCode());
         verify(memberWithdrawalCheckPort).validateWithdrawable(member, "Bearer access-token");
-        verify(authUsecase, never()).logoutAllSessions(any());
+        verify(authService, never()).logoutAllSessions(any());
     }
 
     @Test
@@ -479,6 +478,6 @@ class MemberServiceTest {
         );
         assertEquals("MEMBER_WITHDRAWAL_NOT_ACTIVE", exception.getCode());
         verify(memberWithdrawalCheckPort, never()).validateWithdrawable(any(), any());
-        verify(authUsecase, never()).logoutAllSessions(any());
+        verify(authService, never()).logoutAllSessions(any());
     }
 }

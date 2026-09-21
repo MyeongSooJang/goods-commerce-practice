@@ -335,7 +335,7 @@ class AccountVerificationServiceTest {
                 null,
                 null,
                 null,
-                com.todaylunch.common.security.auth.enumtype.MemberRole.USER,
+                com.example.common.security.auth.enumtype.MemberRole.USER,
                 com.example.member.domain.enumtype.MemberStatus.ACTIVE,
                 now,
                 now
