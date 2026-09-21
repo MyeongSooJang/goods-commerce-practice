@@ -16,8 +16,8 @@ import com.example.member.domain.exception.SellerNotFoundException;
 import com.example.member.domain.entity.Member;
 import com.example.member.domain.entity.Seller;
 import com.example.member.domain.enumtype.MemberStatus;
-import com.example.member.infrastructure.persistence.jpa.MemberJpaAdapter;
-import com.example.member.infrastructure.persistence.jpa.SellerJpaAdapter;
+import com.example.member.domain.repository.MemberRepository;
+import com.example.member.domain.repository.SellerRepository;
 import com.example.common.security.auth.enumtype.MemberRole;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -31,10 +31,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class SellerServiceTest {
 
     @Mock
-    private SellerJpaAdapter sellerPersistencePort;
+    private SellerRepository sellerPersistencePort;
 
     @Mock
-    private MemberJpaAdapter memberPersistencePort;
+    private MemberRepository memberPersistencePort;
 
     @Mock
     private AccountVerificationService accountVerificationService;

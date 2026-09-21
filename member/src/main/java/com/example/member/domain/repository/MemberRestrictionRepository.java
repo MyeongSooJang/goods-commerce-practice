@@ -1,4 +1,4 @@
-package com.example.member.application.port.out;
+package com.example.member.domain.repository;
 
 import com.example.member.domain.entity.MemberRestriction;
 import com.example.member.domain.enumtype.RestrictionType;
@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface MemberRestrictionPersistencePort {
+public interface MemberRestrictionRepository {
 
     MemberRestriction save(MemberRestriction memberRestriction);
 

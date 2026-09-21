@@ -14,8 +14,8 @@ import com.example.member.domain.entity.Member;
 import com.example.member.domain.entity.MemberRestriction;
 import com.example.member.domain.enumtype.MemberStatus;
 import com.example.member.domain.enumtype.RestrictionType;
-import com.example.member.infrastructure.persistence.jpa.MemberJpaAdapter;
-import com.example.member.infrastructure.persistence.jpa.MemberRestrictionJpaAdapter;
+import com.example.member.domain.repository.MemberRepository;
+import com.example.member.domain.repository.MemberRestrictionRepository;
 import com.example.common.security.auth.dto.AuthenticatedMember;
 import com.example.common.security.auth.enumtype.MemberRole;
 import com.example.common.security.exception.AuthorizationDeniedException;
@@ -33,10 +33,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class MemberRestrictionServiceTest {
 
     @Mock
-    private MemberJpaAdapter memberPersistencePort;
+    private MemberRepository memberPersistencePort;
 
     @Mock
-    private MemberRestrictionJpaAdapter memberRestrictionPersistencePort;
+    private MemberRestrictionRepository memberRestrictionPersistencePort;
 
     @InjectMocks
     private MemberRestrictionService memberRestrictionService;

@@ -2,8 +2,8 @@ package com.example.member.application.service;
 
 import com.example.member.application.dto.command.CreateMemberRestrictionCommand;
 import com.example.member.application.dto.result.MemberRestrictionResult;
-import com.example.member.application.port.out.MemberPersistencePort;
-import com.example.member.application.port.out.MemberRestrictionPersistencePort;
+import com.example.member.domain.repository.MemberRepository;
+import com.example.member.domain.repository.MemberRestrictionRepository;
 import com.example.member.domain.exception.DuplicateActiveRestrictionException;
 import com.example.member.domain.exception.MemberNotFoundException;
 import com.example.member.domain.exception.MemberRestrictionNotFoundException;
@@ -27,8 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class MemberRestrictionService {
 
-    private final MemberPersistencePort memberPersistencePort;
-    private final MemberRestrictionPersistencePort memberRestrictionPersistencePort;
+    private final MemberRepository memberPersistencePort;
+    private final MemberRestrictionRepository memberRestrictionPersistencePort;
 
     @Transactional
     public MemberRestrictionResult createRestriction(

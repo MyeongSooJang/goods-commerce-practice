@@ -1,11 +1,11 @@
-package com.example.member.application.port.out;
+package com.example.member.domain.repository;
 
 import com.example.member.domain.entity.Member;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface MemberPersistencePort {
+public interface MemberRepository {
 
     Member save(Member member);
 

@@ -3,8 +3,8 @@ package com.example.member.application.service;
 import com.example.member.application.dto.result.MemberOauthAccountItemResult;
 import com.example.member.application.dto.result.MemberOauthAccountListResult;
 import com.example.member.application.dto.result.MemberOauthAccountUnlinkResult;
-import com.example.member.application.port.out.MemberOauthAccountPersistencePort;
-import com.example.member.application.port.out.MemberPersistencePort;
+import com.example.member.domain.repository.MemberOauthAccountRepository;
+import com.example.member.domain.repository.MemberRepository;
 import com.example.member.domain.exception.LastLoginMethodRemovalNotAllowedException;
 import com.example.member.domain.exception.MemberNotFoundException;
 import com.example.member.domain.exception.MemberOauthAccountNotFoundException;
@@ -23,8 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class MemberOauthAccountService {
 
-    private final MemberPersistencePort memberPersistencePort;
-    private final MemberOauthAccountPersistencePort memberOauthAccountPersistencePort;
+    private final MemberRepository memberPersistencePort;
+    private final MemberOauthAccountRepository memberOauthAccountPersistencePort;
 
     public MemberOauthAccountListResult getCurrentMemberOauthAccounts(UUID memberId) {
         Member member = getMember(memberId);

@@ -1,6 +1,5 @@
 package com.example.member.infrastructure.storage.s3;
 
-import com.example.member.application.port.out.ProfileImageUrlPort;
 import com.example.member.config.S3Properties;
 import java.time.Duration;
 import org.springframework.stereotype.Component;
@@ -9,7 +8,7 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
 @Component
-public class ProfileImageUrlResolver implements ProfileImageUrlPort {
+public class ProfileImageUrlResolver {
 
     private final String profileImagePrefix;
     private final S3Presigner s3Presigner;
@@ -21,14 +20,12 @@ public class ProfileImageUrlResolver implements ProfileImageUrlPort {
         this.profileImagePrefix = trimTrailingSlash(s3Properties.getProfileImagePrefix());
     }
 
-    @Override
     public boolean isSupportedKey(String objectKey) {
         return objectKey != null
                 && !objectKey.isBlank()
                 && objectKey.startsWith(profileImagePrefix + "/");
     }
 
-    @Override
     public String resolve(String objectKey) {
         if (objectKey == null || objectKey.isBlank()) {
             return null;

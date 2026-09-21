@@ -9,11 +9,11 @@ import com.example.member.application.dto.result.ChangePasswordResult;
 import com.example.member.application.dto.result.CreateMemberResult;
 import com.example.member.application.dto.result.MemberResult;
 import com.example.member.application.dto.result.WithdrawMemberResult;
-import com.example.member.application.port.out.MemberWithdrawalCheckPort;
-import com.example.member.application.port.out.MemberEventPort;
-import com.example.member.application.port.out.MemberOauthAccountPersistencePort;
-import com.example.member.application.port.out.MemberPersistencePort;
-import com.example.member.application.port.out.ProfileImageUrlPort;
+import com.example.member.domain.repository.MemberOauthAccountRepository;
+import com.example.member.domain.repository.MemberRepository;
+import com.example.member.infrastructure.client.MemberWithdrawalCheckFeignAdapter;
+import com.example.member.infrastructure.messaging.MemberEventPublisher;
+import com.example.member.infrastructure.storage.s3.ProfileImageUrlResolver;
 import com.example.member.domain.exception.DuplicateMemberEmailException;
 import com.example.member.domain.exception.InvalidCurrentPasswordException;
 import com.example.member.domain.exception.MemberWithdrawalException;
@@ -37,12 +37,12 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class MemberService {
 
-    private final MemberPersistencePort memberPersistencePort;
+    private final MemberRepository memberPersistencePort;
     private final PasswordEncoder passwordEncoder;
-    private final MemberEventPort memberEventPort;
-    private final MemberWithdrawalCheckPort memberWithdrawalCheckPort;
-    private final MemberOauthAccountPersistencePort memberOauthAccountPersistencePort;
-    private final ProfileImageUrlPort profileImageUrlPort;
+    private final MemberEventPublisher memberEventPort;
+    private final MemberWithdrawalCheckFeignAdapter memberWithdrawalCheckPort;
+    private final MemberOauthAccountRepository memberOauthAccountPersistencePort;
+    private final ProfileImageUrlResolver profileImageUrlPort;
     private final EmailVerificationService emailVerificationService;
     private final KakaoOAuthService kakaoOAuthService;
     private final MemberSignupProperties memberSignupProperties;

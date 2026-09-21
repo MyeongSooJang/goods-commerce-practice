@@ -20,7 +20,7 @@ import com.example.member.domain.entity.Member;
 import com.example.member.domain.entity.MemberRestriction;
 import com.example.member.domain.enumtype.MemberStatus;
 import com.example.member.domain.enumtype.RestrictionType;
-import com.example.member.infrastructure.persistence.jpa.MemberJpaAdapter;
+import com.example.member.domain.repository.MemberRepository;
 import com.example.member.infrastructure.redis.auth.AuthSession;
 import com.example.member.infrastructure.redis.auth.ParsedRefreshToken;
 import com.example.member.infrastructure.redis.auth.RefreshTokenStore;
@@ -45,7 +45,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 class AuthServiceTest {
 
     @Mock
-    private MemberJpaAdapter memberPersistencePort;
+    private MemberRepository memberPersistencePort;
 
     @Mock
     private PasswordEncoder passwordEncoder;

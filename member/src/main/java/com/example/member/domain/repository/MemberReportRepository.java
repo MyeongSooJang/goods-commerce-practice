@@ -1,11 +1,11 @@
-package com.example.member.application.port.out;
+package com.example.member.domain.repository;
 
 import com.example.member.domain.entity.MemberReport;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface MemberReportPersistencePort {
+public interface MemberReportRepository {
 
     MemberReport save(MemberReport memberReport);
 

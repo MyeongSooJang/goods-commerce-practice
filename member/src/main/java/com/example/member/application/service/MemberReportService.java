@@ -4,8 +4,8 @@ import com.example.member.application.dto.command.CreateMemberReportCommand;
 import com.example.member.application.dto.command.CreateMemberRestrictionCommand;
 import com.example.member.application.dto.command.ReviewMemberReportCommand;
 import com.example.member.application.dto.result.MemberReportResult;
-import com.example.member.application.port.out.MemberPersistencePort;
-import com.example.member.application.port.out.MemberReportPersistencePort;
+import com.example.member.domain.repository.MemberRepository;
+import com.example.member.domain.repository.MemberReportRepository;
 import com.example.member.domain.exception.DuplicateMemberReportException;
 import com.example.member.domain.exception.MemberNotFoundException;
 import com.example.member.domain.exception.MemberReportNotFoundException;
@@ -29,8 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class MemberReportService {
 
-    private final MemberPersistencePort memberPersistencePort;
-    private final MemberReportPersistencePort memberReportPersistencePort;
+    private final MemberRepository memberPersistencePort;
+    private final MemberReportRepository memberReportPersistencePort;
     private final MemberRestrictionService memberRestrictionService;
 
     @Transactional

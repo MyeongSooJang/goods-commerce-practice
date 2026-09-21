@@ -4,8 +4,8 @@ import com.example.member.application.dto.command.PasswordResetConfirmCommand;
 import com.example.member.application.dto.command.PasswordResetSendCommand;
 import com.example.member.application.dto.result.PasswordResetConfirmResult;
 import com.example.member.application.dto.result.PasswordResetSendResult;
-import com.example.member.application.port.out.EmailSenderPort;
-import com.example.member.application.port.out.MemberPersistencePort;
+import com.example.member.domain.repository.MemberRepository;
+import com.example.member.infrastructure.email.EmailSender;
 import com.example.member.domain.exception.InvalidPasswordResetTokenException;
 import com.example.member.config.PasswordResetProperties;
 import com.example.member.domain.entity.Member;
@@ -24,9 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class PasswordResetService {
 
-    private final MemberPersistencePort memberPersistencePort;
+    private final MemberRepository memberPersistencePort;
     private final PasswordResetTokenStore passwordResetTokenStore;
-    private final EmailSenderPort emailSender;
+    private final EmailSender emailSender;
     private final PasswordResetProperties passwordResetProperties;
     private final PasswordEncoder passwordEncoder;
 

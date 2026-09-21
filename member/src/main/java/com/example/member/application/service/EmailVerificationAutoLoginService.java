@@ -3,8 +3,8 @@ package com.example.member.application.service;
 import com.example.member.application.dto.command.AuthSessionMetadata;
 import com.example.member.application.dto.result.AuthTokenResult;
 import com.example.member.application.dto.result.EmailVerificationAutoLoginTokenResult;
-import com.example.member.application.port.out.EmailVerificationAutoLoginTokenStore;
-import com.example.member.application.port.out.MemberPersistencePort;
+import com.example.member.domain.repository.MemberRepository;
+import com.example.member.infrastructure.redis.emailverification.RedisEmailVerificationAutoLoginTokenStore;
 import com.example.member.domain.exception.InvalidEmailVerificationAutoLoginTokenException;
 import com.example.member.domain.entity.Member;
 import java.time.Instant;
@@ -19,8 +19,8 @@ import com.example.member.infrastructure.redis.emailverification.EmailVerificati
 @Transactional(readOnly = true)
 public class EmailVerificationAutoLoginService {
 
-    private final EmailVerificationAutoLoginTokenStore emailVerificationAutoLoginTokenStore;
-    private final MemberPersistencePort memberPersistencePort;
+    private final RedisEmailVerificationAutoLoginTokenStore emailVerificationAutoLoginTokenStore;
+    private final MemberRepository memberPersistencePort;
     private final AuthService authService;
     private final com.example.member.config.EmailVerificationProperties emailVerificationProperties;
 

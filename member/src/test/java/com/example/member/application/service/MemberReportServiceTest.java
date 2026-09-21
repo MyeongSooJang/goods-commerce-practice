@@ -20,8 +20,8 @@ import com.example.member.domain.enumtype.MemberStatus;
 import com.example.member.domain.enumtype.ReportStatus;
 import com.example.member.domain.enumtype.ReportType;
 import com.example.member.domain.enumtype.RestrictionType;
-import com.example.member.infrastructure.persistence.jpa.MemberJpaAdapter;
-import com.example.member.infrastructure.persistence.jpa.MemberReportJpaAdapter;
+import com.example.member.domain.repository.MemberRepository;
+import com.example.member.domain.repository.MemberReportRepository;
 import com.example.common.security.auth.dto.AuthenticatedMember;
 import com.example.common.security.auth.enumtype.MemberRole;
 import java.time.LocalDateTime;
@@ -38,10 +38,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class MemberReportServiceTest {
 
     @Mock
-    private MemberJpaAdapter memberPersistencePort;
+    private MemberRepository memberPersistencePort;
 
     @Mock
-    private MemberReportJpaAdapter memberReportPersistencePort;
+    private MemberReportRepository memberReportPersistencePort;
 
     @Mock
     private MemberRestrictionService memberRestrictionService;

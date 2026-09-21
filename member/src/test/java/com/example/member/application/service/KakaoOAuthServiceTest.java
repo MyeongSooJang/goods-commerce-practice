@@ -9,17 +9,17 @@ import static org.mockito.Mockito.when;
 
 import com.example.member.application.dto.result.KakaoOAuthLinkResult;
 import com.example.member.application.dto.result.KakaoOAuthResult;
-import com.example.member.application.port.out.MemberEventPort;
 import com.example.member.config.KakaoOAuthProperties;
 import com.example.member.domain.entity.Member;
 import com.example.member.domain.entity.MemberOauthAccount;
 import com.example.member.domain.enumtype.MemberStatus;
 import com.example.member.domain.enumtype.OAuthProvider;
+import com.example.member.domain.repository.MemberOauthAccountRepository;
+import com.example.member.domain.repository.MemberRepository;
 import com.example.member.infrastructure.kakao.KakaoOAuthClient;
 import com.example.member.infrastructure.kakao.KakaoTokenResponse;
 import com.example.member.infrastructure.kakao.KakaoUserProfileResponse;
-import com.example.member.infrastructure.persistence.jpa.MemberJpaAdapter;
-import com.example.member.infrastructure.persistence.jpa.MemberOauthAccountJpaAdapter;
+import com.example.member.infrastructure.messaging.MemberEventPublisher;
 import com.example.member.infrastructure.redis.oauth.KakaoOAuthAuthorizeStateStore;
 import com.example.member.infrastructure.redis.oauth.KakaoOAuthPendingLink;
 import com.example.common.security.auth.enumtype.MemberRole;
@@ -47,16 +47,16 @@ class KakaoOAuthServiceTest {
     private KakaoOAuthAuthorizeStateStore kakaoOAuthAuthorizeStateStore;
 
     @Mock
-    private MemberJpaAdapter memberPersistencePort;
+    private MemberRepository memberPersistencePort;
 
     @Mock
-    private MemberOauthAccountJpaAdapter memberOauthAccountPersistencePort;
+    private MemberOauthAccountRepository memberOauthAccountPersistencePort;
 
     @Mock
     private AuthService authService;
 
     @Mock
-    private MemberEventPort memberEventPort;
+    private MemberEventPublisher memberEventPort;
 
     @InjectMocks
     private KakaoOAuthService kakaoOAuthService;

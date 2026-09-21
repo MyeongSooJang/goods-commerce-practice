@@ -6,14 +6,14 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.example.member.application.port.out.MemberEventPort;
 import com.example.member.domain.exception.AccountVerificationNotAllowedException;
 import com.example.member.domain.entity.Member;
 import com.example.member.domain.entity.Seller;
 import com.example.member.domain.enumtype.MemberStatus;
+import com.example.member.domain.repository.MemberRepository;
+import com.example.member.domain.repository.SellerRepository;
 import com.example.member.infrastructure.crypto.AccountEncryptionService;
-import com.example.member.infrastructure.persistence.jpa.MemberJpaAdapter;
-import com.example.member.infrastructure.persistence.jpa.SellerJpaAdapter;
+import com.example.member.infrastructure.messaging.MemberEventPublisher;
 import com.example.member.infrastructure.redis.accountverification.AccountVerificationSession;
 import com.example.member.infrastructure.redis.accountverification.AccountVerificationSessionStore;
 import com.example.member.infrastructure.redis.seller.SellerDraft;
@@ -38,16 +38,16 @@ class SellerPromotionServiceTest {
     private SellerDraftStore sellerDraftStore;
 
     @Mock
-    private SellerJpaAdapter sellerPersistencePort;
+    private SellerRepository sellerPersistencePort;
 
     @Mock
-    private MemberJpaAdapter memberPersistencePort;
+    private MemberRepository memberPersistencePort;
 
     @Mock
     private AccountEncryptionService accountEncryptionService;
 
     @Mock
-    private MemberEventPort memberEventPort;
+    private MemberEventPublisher memberEventPort;
 
     @Test
     void promoteAfterAccountVerified_success_createsSellerAndUpdatesMemberRole() {

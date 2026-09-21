@@ -1,10 +1,10 @@
-package com.example.member.application.port.out;
+package com.example.member.domain.repository;
 
 import com.example.member.domain.entity.Seller;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface SellerPersistencePort {
+public interface SellerRepository {
 
     Seller save(Seller seller);
 

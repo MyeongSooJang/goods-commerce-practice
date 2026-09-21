@@ -3,9 +3,9 @@ package com.example.member.application.service;
 import com.example.member.application.dto.command.AuthSessionMetadata;
 import com.example.member.application.dto.result.KakaoOAuthLinkResult;
 import com.example.member.application.dto.result.KakaoOAuthResult;
-import com.example.member.application.port.out.MemberEventPort;
-import com.example.member.application.port.out.MemberOauthAccountPersistencePort;
-import com.example.member.application.port.out.MemberPersistencePort;
+import com.example.member.domain.repository.MemberOauthAccountRepository;
+import com.example.member.domain.repository.MemberRepository;
+import com.example.member.infrastructure.messaging.MemberEventPublisher;
 import com.example.member.domain.exception.InvalidLoginException;
 import com.example.member.config.KakaoOAuthProperties;
 import com.example.member.domain.entity.Member;
@@ -34,10 +34,10 @@ public class KakaoOAuthService {
     private final KakaoOAuthProperties kakaoOAuthProperties;
     private final KakaoOAuthClient kakaoOAuthClient;
     private final KakaoOAuthAuthorizeStateStore kakaoOAuthAuthorizeStateStore;
-    private final MemberPersistencePort memberPersistencePort;
-    private final MemberOauthAccountPersistencePort memberOauthAccountPersistencePort;
+    private final MemberRepository memberPersistencePort;
+    private final MemberOauthAccountRepository memberOauthAccountPersistencePort;
     private final AuthService authService;
-    private final MemberEventPort memberEventPort;
+    private final MemberEventPublisher memberEventPort;
 
     public String createLoginAuthorizeState() {
         String state = UUID.randomUUID().toString();

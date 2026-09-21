@@ -2,9 +2,9 @@ package com.example.member.application.service;
 
 import com.example.member.application.dto.result.EmailVerificationAutoLoginTokenResult;
 import com.example.member.application.dto.result.EmailVerificationConfirmResult;
-import com.example.member.application.port.out.EmailSenderPort;
-import com.example.member.application.port.out.EmailVerificationPersistencePort;
-import com.example.member.application.port.out.MemberPersistencePort;
+import com.example.member.domain.repository.EmailVerificationRepository;
+import com.example.member.domain.repository.MemberRepository;
+import com.example.member.infrastructure.email.EmailSender;
 import com.example.member.domain.exception.EmailVerificationNotAllowedException;
 import com.example.member.domain.exception.ExpiredEmailVerificationException;
 import com.example.member.domain.exception.InvalidEmailVerificationTokenException;
@@ -25,9 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class EmailVerificationService {
 
-    private final EmailVerificationPersistencePort emailVerificationPersistencePort;
-    private final MemberPersistencePort memberPersistencePort;
-    private final EmailSenderPort emailSender;
+    private final EmailVerificationRepository emailVerificationPersistencePort;
+    private final MemberRepository memberPersistencePort;
+    private final EmailSender emailSender;
     private final EmailVerificationProperties emailVerificationProperties;
     private final EmailVerificationAutoLoginService emailVerificationAutoLoginService;
 

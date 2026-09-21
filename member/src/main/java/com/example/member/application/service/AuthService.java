@@ -6,7 +6,7 @@ import com.example.member.application.dto.command.TokenRefreshCommand;
 import com.example.member.application.dto.result.AuthSessionListResult;
 import com.example.member.application.dto.result.AuthSessionResult;
 import com.example.member.application.dto.result.AuthTokenResult;
-import com.example.member.application.port.out.MemberPersistencePort;
+import com.example.member.domain.repository.MemberRepository;
 import com.example.member.domain.exception.EmailVerificationRequiredException;
 import com.example.member.domain.exception.InvalidLoginException;
 import com.example.member.domain.exception.MemberRestrictedException;
@@ -38,7 +38,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final MemberPersistencePort memberPersistencePort;
+    private final MemberRepository memberPersistencePort;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenStore refreshTokenStore;

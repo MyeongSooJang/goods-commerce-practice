@@ -1,6 +1,5 @@
 package com.example.member.infrastructure.client;
 
-import com.example.member.application.port.out.MemberWithdrawalCheckPort;
 import com.example.member.domain.exception.MemberWithdrawalException;
 import com.example.member.domain.entity.Member;
 import com.example.member.domain.enumtype.MemberStatus;
@@ -22,7 +21,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class MemberWithdrawalCheckFeignAdapter implements MemberWithdrawalCheckPort {
+public class MemberWithdrawalCheckFeignAdapter {
 
     private static final String CHECK_UNAVAILABLE_MESSAGE =
             "회원 탈퇴 가능 여부를 확인할 수 없습니다. 잠시 후 다시 시도해 주세요.";
@@ -33,7 +32,6 @@ public class MemberWithdrawalCheckFeignAdapter implements MemberWithdrawalCheckP
     private final PaymentWithdrawalClient paymentWithdrawalClient;
     private final SettlementWithdrawalClient settlementWithdrawalClient;
 
-    @Override
     public void validateWithdrawable(Member member, String authorizationHeader) {
         if (member.getStatus() != MemberStatus.ACTIVE) {
             return;

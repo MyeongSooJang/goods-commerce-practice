@@ -1,4 +1,4 @@
-package com.example.member.application.port.out;
+package com.example.member.domain.repository;
 
 import com.example.member.domain.entity.EmailVerification;
 import com.example.member.domain.enumtype.EmailVerificationPurpose;
@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface EmailVerificationPersistencePort {
+public interface EmailVerificationRepository {
 
     EmailVerification save(EmailVerification emailVerification);
 

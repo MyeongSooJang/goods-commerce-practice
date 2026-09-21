@@ -4,8 +4,8 @@ import com.example.member.application.dto.command.AccountVerificationCreateComma
 import com.example.member.application.dto.command.SellerRegisterCommand;
 import com.example.member.application.dto.result.AccountVerificationSendResult;
 import com.example.member.application.dto.result.SellerResult;
-import com.example.member.application.port.out.MemberPersistencePort;
-import com.example.member.application.port.out.SellerPersistencePort;
+import com.example.member.domain.repository.MemberRepository;
+import com.example.member.domain.repository.SellerRepository;
 import com.example.member.domain.exception.MemberNotFoundException;
 import com.example.member.domain.exception.SellerAlreadyRegisteredException;
 import com.example.member.domain.exception.SellerNotFoundException;
@@ -21,8 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class SellerService {
 
-    private final SellerPersistencePort sellerPersistencePort;
-    private final MemberPersistencePort memberPersistencePort;
+    private final SellerRepository sellerPersistencePort;
+    private final MemberRepository memberPersistencePort;
     private final AccountVerificationService accountVerificationService;
 
     @Transactional

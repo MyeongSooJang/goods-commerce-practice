@@ -1,4 +1,4 @@
-package com.example.member.application.port.out;
+package com.example.member.domain.repository;
 
 import com.example.member.domain.entity.MemberOauthAccount;
 import com.example.member.domain.enumtype.OAuthProvider;
@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface MemberOauthAccountPersistencePort {
+public interface MemberOauthAccountRepository {
 
     MemberOauthAccount save(MemberOauthAccount memberOauthAccount);
 

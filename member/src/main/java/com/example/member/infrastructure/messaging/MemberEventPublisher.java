@@ -1,11 +1,11 @@
-package com.example.member.application.port.out;
+package com.example.member.infrastructure.messaging;
 
 import com.example.member.domain.entity.Member;
 import com.example.member.domain.entity.Seller;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public interface MemberEventPort {
+public interface MemberEventPublisher {
 
     void publishMemberSignedUp(Member member);
 
