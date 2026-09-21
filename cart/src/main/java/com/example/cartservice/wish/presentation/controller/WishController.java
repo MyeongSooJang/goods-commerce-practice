@@ -1,7 +1,7 @@
 package com.example.cartservice.wish.presentation.controller;
 
-import com.todaylunch.common.security.auth.annotation.CurrentMember;
-import com.todaylunch.common.security.auth.dto.AuthenticatedMember;
+import com.example.common.security.auth.annotation.CurrentMember;
+import com.example.common.security.auth.dto.AuthenticatedMember;
 import com.example.cartservice.wish.application.usecase.WishCreateUseCase;
 import com.example.cartservice.wish.application.usecase.WishDeleteUseCase;
 import com.example.cartservice.wish.application.usecase.WishSearchUseCase;

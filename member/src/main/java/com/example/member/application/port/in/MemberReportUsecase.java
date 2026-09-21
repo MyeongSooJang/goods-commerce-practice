@@ -3,7 +3,7 @@ package com.example.member.application.port.in;
 import com.example.member.application.dto.command.CreateMemberReportCommand;
 import com.example.member.application.dto.command.ReviewMemberReportCommand;
 import com.example.member.application.dto.result.MemberReportResult;
-import com.todaylunch.common.security.auth.dto.AuthenticatedMember;
+import com.example.common.security.auth.dto.AuthenticatedMember;
 import java.util.List;
 import java.util.UUID;
 

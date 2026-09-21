@@ -3,7 +3,7 @@ package com.example.order.config;
 import com.example.order.infrastructure.kafka.KafkaConsumerGroups;
 import com.example.order.infrastructure.kafka.event.AuctionWonEvent;
 import com.example.order.infrastructure.kafka.event.PaymentResultEvent;
-import com.todaylunch.common.event.contract.EventEnvelope;
+import com.example.common.event.contract.EventEnvelope;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.kafka.clients.consumer.ConsumerConfig;

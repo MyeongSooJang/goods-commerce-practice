@@ -22,7 +22,7 @@ import com.example.member.infrastructure.persistence.jpa.MemberJpaAdapter;
 import com.example.member.infrastructure.persistence.jpa.MemberOauthAccountJpaAdapter;
 import com.example.member.infrastructure.redis.oauth.KakaoOAuthAuthorizeStateStore;
 import com.example.member.infrastructure.redis.oauth.KakaoOAuthPendingLink;
-import com.todaylunch.common.security.auth.enumtype.MemberRole;
+import com.example.common.security.auth.enumtype.MemberRole;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Optional;

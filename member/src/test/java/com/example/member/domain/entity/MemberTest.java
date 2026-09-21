@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.example.member.domain.enumtype.MemberStatus;
 import java.time.LocalDateTime;
 import java.util.UUID;
-import com.todaylunch.common.security.auth.enumtype.MemberRole;
+import com.example.common.security.auth.enumtype.MemberRole;
 import org.junit.jupiter.api.Test;
 
 class MemberTest {

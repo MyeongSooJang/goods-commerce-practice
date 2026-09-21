@@ -22,7 +22,7 @@ import com.example.member.infrastructure.redis.auth.ParsedRefreshToken;
 import com.example.member.infrastructure.redis.auth.RefreshTokenStore;
 import com.example.member.infrastructure.redis.auth.TokenBlacklistStore;
 import com.example.member.infrastructure.security.jwt.JwtTokenProvider;
-import com.todaylunch.common.security.exception.InvalidTokenException;
+import com.example.common.security.exception.InvalidTokenException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;

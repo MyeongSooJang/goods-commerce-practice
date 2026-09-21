@@ -19,7 +19,7 @@ import com.example.member.domain.entity.Seller;
 import com.example.member.domain.enumtype.MemberStatus;
 import com.example.member.infrastructure.persistence.jpa.MemberJpaAdapter;
 import com.example.member.infrastructure.persistence.jpa.SellerJpaAdapter;
-import com.todaylunch.common.security.auth.enumtype.MemberRole;
+import com.example.common.security.auth.enumtype.MemberRole;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;

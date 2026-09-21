@@ -1,6 +1,6 @@
 package com.example.payment.infrastructure.config;
 
-import com.todaylunch.common.messaging.kafka.KafkaProducerProps;
+import com.example.common.messaging.kafka.KafkaProducerProps;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

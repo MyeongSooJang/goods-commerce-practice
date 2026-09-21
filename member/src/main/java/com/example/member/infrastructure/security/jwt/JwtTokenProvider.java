@@ -3,7 +3,7 @@ package com.example.member.infrastructure.security.jwt;
 import com.example.member.domain.entity.Member;
 import com.example.member.infrastructure.redis.auth.ParsedAccessToken;
 import com.example.member.infrastructure.redis.auth.ParsedRefreshToken;
-import com.todaylunch.common.security.exception.InvalidTokenException;
+import com.example.common.security.exception.InvalidTokenException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;

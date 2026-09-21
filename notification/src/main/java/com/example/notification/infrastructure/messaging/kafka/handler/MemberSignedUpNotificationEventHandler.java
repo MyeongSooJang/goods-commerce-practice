@@ -5,7 +5,7 @@ import com.example.notification.infrastructure.messaging.kafka.contract.MemberSi
 import com.example.notification.infrastructure.messaging.kafka.dlq.exception.InvalidEventPayloadException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
-import com.todaylunch.common.event.contract.EventEnvelope;
+import com.example.common.event.contract.EventEnvelope;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Objects;

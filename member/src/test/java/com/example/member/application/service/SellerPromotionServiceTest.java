@@ -18,7 +18,7 @@ import com.example.member.infrastructure.redis.accountverification.AccountVerifi
 import com.example.member.infrastructure.redis.accountverification.AccountVerificationSessionStore;
 import com.example.member.infrastructure.redis.seller.SellerDraft;
 import com.example.member.infrastructure.redis.seller.SellerDraftStore;
-import com.todaylunch.common.security.auth.enumtype.MemberRole;
+import com.example.common.security.auth.enumtype.MemberRole;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;

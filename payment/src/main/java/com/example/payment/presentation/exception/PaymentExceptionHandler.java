@@ -3,7 +3,7 @@ package com.example.payment.presentation.exception;
 import com.example.payment.common.exception.CustomException;
 import com.example.payment.common.exception.ErrorCode;
 import com.example.payment.presentation.dto.response.ApiResponse;
-import com.todaylunch.common.security.exception.InvalidTokenException;
+import com.example.common.security.exception.InvalidTokenException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;

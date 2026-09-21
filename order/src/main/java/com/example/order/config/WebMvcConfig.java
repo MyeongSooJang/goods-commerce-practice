@@ -1,6 +1,6 @@
 package com.example.order.config;
 
-import com.todaylunch.common.security.auth.config.CurrentMemberWebConfig;
+import com.example.common.security.auth.config.CurrentMemberWebConfig;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 

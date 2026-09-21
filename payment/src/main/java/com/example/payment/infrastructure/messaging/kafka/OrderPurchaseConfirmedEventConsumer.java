@@ -4,7 +4,7 @@ import com.example.payment.common.exception.InvalidOrderPaymentRequestException;
 import com.example.payment.application.dto.EscrowReleaseCommand;
 import com.example.payment.application.usecase.EscrowReleaseUseCase;
 import com.example.payment.infrastructure.messaging.kafka.contract.OrderPurchaseConfirmedMessage;
-import com.todaylunch.common.event.contract.EventEnvelope;
+import com.example.common.event.contract.EventEnvelope;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;

@@ -1,6 +1,6 @@
 package com.example.member.application.dto.command;
 
-import com.todaylunch.common.security.auth.enumtype.MemberRole;
+import com.example.common.security.auth.enumtype.MemberRole;
 
 public record CreateMemberCommand(
         String email,

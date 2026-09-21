@@ -3,7 +3,7 @@ package com.example.order.infrastructure.kafka.event;
 import com.example.order.domain.entity.Order;
 import com.example.order.domain.entity.OrderItem;
 import com.example.order.domain.enumtype.OrderEventType;
-import com.todaylunch.common.event.contract.EventEnvelope;
+import com.example.common.event.contract.EventEnvelope;
 
 import java.time.Instant;
 import java.util.List;

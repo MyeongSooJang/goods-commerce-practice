@@ -1,7 +1,7 @@
 package com.example.payment.infrastructure.messaging.kafka;
 
 import com.example.payment.infrastructure.messaging.kafka.contract.SellerSettlementPayoutResultMessage;
-import com.todaylunch.common.event.contract.EventEnvelope;
+import com.example.common.event.contract.EventEnvelope;
 import java.time.ZoneId;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;

@@ -18,7 +18,7 @@ import com.example.member.infrastructure.email.EmailSender;
 import com.example.member.infrastructure.persistence.jpa.MemberJpaAdapter;
 import com.example.member.infrastructure.redis.passwordreset.PasswordResetToken;
 import com.example.member.infrastructure.redis.passwordreset.PasswordResetTokenStore;
-import com.todaylunch.common.security.auth.enumtype.MemberRole;
+import com.example.common.security.auth.enumtype.MemberRole;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;

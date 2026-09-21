@@ -13,7 +13,7 @@ import com.example.payment.infrastructure.messaging.kafka.contract.SellerSettlem
 import com.example.payment.infrastructure.messaging.kafka.contract.SellerSettlementPayoutResultMessage;
 import com.example.payment.infrastructure.messaging.kafka.contract.SellerSettlementPayoutResultStatus;
 import com.example.payment.infrastructure.messaging.kafka.contract.SettlementPayoutType;
-import com.todaylunch.common.event.contract.EventEnvelope;
+import com.example.common.event.contract.EventEnvelope;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import org.slf4j.Logger;

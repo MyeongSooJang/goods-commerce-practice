@@ -11,7 +11,7 @@ import com.example.member.infrastructure.client.dto.response.MemberOrderWithdraw
 import com.example.member.infrastructure.client.dto.response.PaymentSellerWithdrawalSummaryResponse;
 import com.example.member.infrastructure.client.dto.response.ProductSellerWithdrawalSummaryResponse;
 import com.example.member.infrastructure.client.dto.response.SettlementSellerWithdrawalSummaryResponse;
-import com.todaylunch.common.security.auth.enumtype.MemberRole;
+import com.example.common.security.auth.enumtype.MemberRole;
 import feign.FeignException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;

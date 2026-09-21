@@ -6,7 +6,7 @@ import com.example.member.application.event.MemberOauthLinkedEvent;
 import com.example.member.application.event.MemberSignedUpEvent;
 import com.example.member.application.event.SellerPromotedEvent;
 import com.example.member.infrastructure.messaging.kafka.KafkaTopics;
-import com.todaylunch.common.event.contract.EventEnvelope;
+import com.example.common.event.contract.EventEnvelope;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
