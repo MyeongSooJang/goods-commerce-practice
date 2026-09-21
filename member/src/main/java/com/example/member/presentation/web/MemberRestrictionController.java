@@ -1,7 +1,7 @@
 package com.example.member.presentation.web;
 
 import com.example.member.application.dto.command.CreateMemberRestrictionCommand;
-import com.example.member.application.port.in.MemberRestrictionUsecase;
+import com.example.member.application.service.MemberRestrictionService;
 import com.example.member.presentation.web.dto.ApiResponse;
 import com.example.member.presentation.web.dto.CreateMemberRestrictionRequest;
 import com.example.member.presentation.web.dto.MemberRestrictionResponse;
@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "회원 제재", description = "관리자 회원 제재 API")
 public class MemberRestrictionController {
 
-    private final MemberRestrictionUsecase memberRestrictionUsecase;
+    private final MemberRestrictionService memberRestrictionService;
 
     @PostMapping
     @Operation(summary = "회원 제재 생성", description = "회원 제재를 생성합니다.")
@@ -39,7 +39,7 @@ public class MemberRestrictionController {
     ) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(MemberRestrictionResponse.from(
-                        memberRestrictionUsecase.createRestriction(
+                        memberRestrictionService.createRestriction(
                                 authenticatedMember,
                                 new CreateMemberRestrictionCommand(
                                         request.memberId(),
@@ -59,7 +59,7 @@ public class MemberRestrictionController {
     ) {
         return ResponseEntity.ok(ApiResponse.success(
                 MemberRestrictionResponse.from(
-                        memberRestrictionUsecase.deactivateRestriction(authenticatedMember, restrictionId)
+                        memberRestrictionService.deactivateRestriction(authenticatedMember, restrictionId)
                 )
         ));
     }
@@ -70,7 +70,7 @@ public class MemberRestrictionController {
             @CurrentMember AuthenticatedMember authenticatedMember
     ) {
         return ResponseEntity.ok(ApiResponse.success(
-                memberRestrictionUsecase.getAllMemberRestrictions(authenticatedMember).stream()
+                memberRestrictionService.getAllMemberRestrictions(authenticatedMember).stream()
                         .map(MemberRestrictionResponse::from)
                         .toList()
         ));
@@ -83,7 +83,7 @@ public class MemberRestrictionController {
             @PathVariable(name = "memberId") UUID memberId
     ) {
         return ResponseEntity.ok(ApiResponse.success(
-                memberRestrictionUsecase.getMemberRestrictions(authenticatedMember, memberId).stream()
+                memberRestrictionService.getMemberRestrictions(authenticatedMember, memberId).stream()
                         .map(MemberRestrictionResponse::from)
                         .toList()
         ));

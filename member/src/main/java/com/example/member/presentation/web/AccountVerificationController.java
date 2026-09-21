@@ -2,7 +2,7 @@ package com.example.member.presentation.web;
 
 import com.example.member.application.dto.command.AccountVerificationConfirmCommand;
 import com.example.member.application.dto.command.AccountVerificationCreateCommand;
-import com.example.member.application.port.in.AccountVerificationUsecase;
+import com.example.member.application.service.AccountVerificationService;
 import com.example.member.presentation.web.dto.AccountVerificationCancelResponse;
 import com.example.member.presentation.web.dto.AccountVerificationConfirmRequest;
 import com.example.member.presentation.web.dto.AccountVerificationConfirmResponse;
@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "계좌 인증", description = "계좌 인증 API")
 public class AccountVerificationController {
 
-    private final AccountVerificationUsecase accountVerificationUsecase;
+    private final AccountVerificationService accountVerificationService;
 
     @PostMapping
     @Operation(
@@ -46,7 +46,7 @@ public class AccountVerificationController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(
                         AccountVerificationSendResponse.from(
-                                accountVerificationUsecase.createAccountVerification(
+                                accountVerificationService.createAccountVerification(
                                         authenticatedMember.memberId(),
                                         new AccountVerificationCreateCommand(
                                                 request.bankName(),
@@ -70,7 +70,7 @@ public class AccountVerificationController {
     ) {
         return ResponseEntity.ok(ApiResponse.success(
                 AccountVerificationConfirmResponse.from(
-                        accountVerificationUsecase.confirmAccountVerification(
+                        accountVerificationService.confirmAccountVerification(
                                 authenticatedMember.memberId(),
                                 authenticatedMember.sessionId(),
                                 sessionId,
@@ -90,7 +90,7 @@ public class AccountVerificationController {
     ) {
         return ResponseEntity.ok(ApiResponse.success(
                 AccountVerificationCurrentResponse.from(
-                        accountVerificationUsecase.getCurrentAccountVerification(authenticatedMember.memberId())
+                        accountVerificationService.getCurrentAccountVerification(authenticatedMember.memberId())
                 )
         ));
     }
@@ -107,7 +107,7 @@ public class AccountVerificationController {
     ) {
         return ResponseEntity.ok(ApiResponse.success(
                 AccountVerificationSendResponse.from(
-                        accountVerificationUsecase.resendAccountVerification(authenticatedMember.memberId(), sessionId)
+                        accountVerificationService.resendAccountVerification(authenticatedMember.memberId(), sessionId)
                 )
         ));
     }
@@ -124,7 +124,7 @@ public class AccountVerificationController {
     ) {
         return ResponseEntity.ok(ApiResponse.success(
                 AccountVerificationCancelResponse.from(
-                        accountVerificationUsecase.cancelAccountVerification(authenticatedMember.memberId(), sessionId)
+                        accountVerificationService.cancelAccountVerification(authenticatedMember.memberId(), sessionId)
                 )
         ));
     }

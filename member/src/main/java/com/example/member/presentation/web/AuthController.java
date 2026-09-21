@@ -11,8 +11,8 @@ import com.example.member.application.service.EmailVerificationAutoLoginService;
 import com.example.member.application.service.EmailVerificationService;
 import com.example.member.application.service.KakaoOAuthService;
 import com.example.member.application.service.PasswordResetService;
-import com.example.member.application.port.in.AuthUsecase;
-import com.example.member.application.port.in.MemberUsecase;
+import com.example.member.application.service.AuthService;
+import com.example.member.application.service.MemberService;
 import com.example.member.infrastructure.redis.oauth.KakaoOAuthAuthorizeState;
 import com.example.member.infrastructure.redis.oauth.KakaoOAuthFlowType;
 import com.example.member.presentation.web.dto.ApiResponse;
@@ -64,8 +64,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Tag(name = "인증", description = "회원 인증, 로그인, OAuth API")
 public class AuthController {
 
-    private final AuthUsecase authUsecase;
-    private final MemberUsecase memberUsecase;
+    private final AuthService authService;
+    private final MemberService memberService;
     private final EmailVerificationService emailVerificationService;
     private final EmailVerificationAutoLoginService emailVerificationAutoLoginService;
     private final KakaoOAuthService kakaoOAuthService;
@@ -78,7 +78,7 @@ public class AuthController {
             @Valid @RequestBody CreateMemberRequest request
     ) {
         return ResponseEntity.ok(ApiResponse.success(
-                CreateMemberResponse.from(memberUsecase.createMember(new CreateMemberCommand(
+                CreateMemberResponse.from(memberService.createMember(new CreateMemberCommand(
                         request.email(),
                         request.password(),
                         request.nickname(),
@@ -98,7 +98,7 @@ public class AuthController {
             HttpServletRequest httpServletRequest
     ) {
         return ResponseEntity.ok(ApiResponse.success(
-                LoginResponse.from(authUsecase.login(new LoginCommand(
+                LoginResponse.from(authService.login(new LoginCommand(
                         request.email(),
                         request.password()
                 ), extractSessionMetadata(httpServletRequest)))
@@ -112,7 +112,7 @@ public class AuthController {
             HttpServletRequest httpServletRequest
     ) {
         return ResponseEntity.ok(ApiResponse.success(
-                TokenRefreshResponse.from(authUsecase.refresh(new TokenRefreshCommand(
+                TokenRefreshResponse.from(authService.refresh(new TokenRefreshCommand(
                         request.refreshToken()
                 ), extractSessionMetadata(httpServletRequest)))
         ));
@@ -243,7 +243,7 @@ public class AuthController {
     @PostMapping("/logout/{memberId}")
     @Operation(summary = "로그아웃", description = "회원의 모든 refresh 세션을 삭제합니다.")
     public ResponseEntity<ApiResponse<Void>> logout(@PathVariable(name = "memberId") UUID memberId) {
-        authUsecase.logout(memberId);
+        authService.logout(memberId);
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 

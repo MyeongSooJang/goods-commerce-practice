@@ -6,7 +6,6 @@ import com.example.member.application.dto.command.ReviewMemberReportCommand;
 import com.example.member.application.dto.result.MemberReportResult;
 import com.example.member.application.port.out.MemberPersistencePort;
 import com.example.member.application.port.out.MemberReportPersistencePort;
-import com.example.member.application.port.in.MemberReportUsecase;
 import com.example.member.domain.exception.DuplicateMemberReportException;
 import com.example.member.domain.exception.MemberNotFoundException;
 import com.example.member.domain.exception.MemberReportNotFoundException;
@@ -28,14 +27,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class MemberReportService implements MemberReportUsecase {
+public class MemberReportService {
 
     private final MemberPersistencePort memberPersistencePort;
     private final MemberReportPersistencePort memberReportPersistencePort;
     private final MemberRestrictionService memberRestrictionService;
 
     @Transactional
-    @Override
     public MemberReportResult createReport(
             AuthenticatedMember authenticatedMember,
             CreateMemberReportCommand command
@@ -67,7 +65,6 @@ public class MemberReportService implements MemberReportUsecase {
         return toResult(memberReportPersistencePort.save(memberReport));
     }
 
-    @Override
     public List<MemberReportResult> getMyReports(AuthenticatedMember authenticatedMember) {
         validateReporter(authenticatedMember);
         List<MemberReport> reports = memberReportPersistencePort.findAllByReporterId(authenticatedMember.memberId());
@@ -78,7 +75,6 @@ public class MemberReportService implements MemberReportUsecase {
                 .toList();
     }
 
-    @Override
     public List<MemberReportResult> getReportsForMember(AuthenticatedMember authenticatedMember, UUID memberId) {
         RoleGuard.requireAdmin(authenticatedMember);
         memberPersistencePort.findById(memberId).orElseThrow(MemberNotFoundException::new);
@@ -90,7 +86,6 @@ public class MemberReportService implements MemberReportUsecase {
                 .toList();
     }
 
-    @Override
     public List<MemberReportResult> getAllReports(AuthenticatedMember authenticatedMember) {
         RoleGuard.requireAdmin(authenticatedMember);
         List<MemberReport> reports = memberReportPersistencePort.findAll();
@@ -101,7 +96,6 @@ public class MemberReportService implements MemberReportUsecase {
                 .toList();
     }
 
-    @Override
     public MemberReportResult getReportDetail(AuthenticatedMember authenticatedMember, UUID reportId) {
         RoleGuard.requireAdmin(authenticatedMember);
         return toResult(
@@ -111,7 +105,6 @@ public class MemberReportService implements MemberReportUsecase {
     }
 
     @Transactional
-    @Override
     public MemberReportResult approveReport(
             AuthenticatedMember authenticatedMember,
             UUID reportId,
@@ -144,7 +137,6 @@ public class MemberReportService implements MemberReportUsecase {
     }
 
     @Transactional
-    @Override
     public MemberReportResult rejectReport(
             AuthenticatedMember authenticatedMember,
             UUID reportId,

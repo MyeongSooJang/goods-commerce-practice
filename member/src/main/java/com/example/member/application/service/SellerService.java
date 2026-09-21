@@ -6,8 +6,6 @@ import com.example.member.application.dto.result.AccountVerificationSendResult;
 import com.example.member.application.dto.result.SellerResult;
 import com.example.member.application.port.out.MemberPersistencePort;
 import com.example.member.application.port.out.SellerPersistencePort;
-import com.example.member.application.port.in.AccountVerificationUsecase;
-import com.example.member.application.port.in.SellerUsecase;
 import com.example.member.domain.exception.MemberNotFoundException;
 import com.example.member.domain.exception.SellerAlreadyRegisteredException;
 import com.example.member.domain.exception.SellerNotFoundException;
@@ -21,14 +19,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class SellerService implements SellerUsecase {
+public class SellerService {
 
     private final SellerPersistencePort sellerPersistencePort;
     private final MemberPersistencePort memberPersistencePort;
-    private final AccountVerificationUsecase accountVerificationUsecase;
+    private final AccountVerificationService accountVerificationService;
 
     @Transactional
-    @Override
     public AccountVerificationSendResult registerSeller(UUID memberId, SellerRegisterCommand command) {
         validateRegisterCommand(command);
         getMember(memberId);
@@ -37,7 +34,7 @@ public class SellerService implements SellerUsecase {
             throw new SellerAlreadyRegisteredException();
         }
 
-        return accountVerificationUsecase.createAccountVerification(
+        return accountVerificationService.createAccountVerification(
                 memberId,
                 new AccountVerificationCreateCommand(
                         normalizeRequired(command.bankName(), "bankName"),
@@ -46,7 +43,6 @@ public class SellerService implements SellerUsecase {
         );
     }
 
-    @Override
     public SellerResult getCurrentSeller(UUID memberId) {
         getMember(memberId);
         Seller seller = sellerPersistencePort.findByMemberId(memberId)

@@ -1,7 +1,7 @@
 package com.example.member.presentation.web;
 
 import com.example.member.application.dto.command.ReviewMemberReportCommand;
-import com.example.member.application.port.in.MemberReportUsecase;
+import com.example.member.application.service.MemberReportService;
 import com.example.member.presentation.web.dto.ApiResponse;
 import com.example.member.presentation.web.dto.MemberReportResponse;
 import com.example.member.presentation.web.dto.ReviewMemberReportRequest;
@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "관리자 회원 신고", description = "관리자 회원 신고 검토 API")
 public class AdminMemberReportController {
 
-    private final MemberReportUsecase memberReportUsecase;
+    private final MemberReportService memberReportService;
 
     @GetMapping
     @Operation(summary = "전체 회원 신고 조회", description = "등록된 모든 회원 신고를 조회합니다.")
@@ -35,7 +35,7 @@ public class AdminMemberReportController {
             @CurrentMember AuthenticatedMember authenticatedMember
     ) {
         return ResponseEntity.ok(ApiResponse.success(
-                memberReportUsecase.getAllReports(authenticatedMember).stream()
+                memberReportService.getAllReports(authenticatedMember).stream()
                         .map(MemberReportResponse::from)
                         .toList()
         ));
@@ -48,7 +48,7 @@ public class AdminMemberReportController {
             @PathVariable(name = "reportId") UUID reportId
     ) {
         return ResponseEntity.ok(ApiResponse.success(
-                MemberReportResponse.from(memberReportUsecase.getReportDetail(authenticatedMember, reportId))
+                MemberReportResponse.from(memberReportService.getReportDetail(authenticatedMember, reportId))
         ));
     }
 
@@ -59,7 +59,7 @@ public class AdminMemberReportController {
             @PathVariable(name = "memberId") UUID memberId
     ) {
         return ResponseEntity.ok(ApiResponse.success(
-                memberReportUsecase.getReportsForMember(authenticatedMember, memberId).stream()
+                memberReportService.getReportsForMember(authenticatedMember, memberId).stream()
                         .map(MemberReportResponse::from)
                         .toList()
         ));
@@ -74,7 +74,7 @@ public class AdminMemberReportController {
     ) {
         return ResponseEntity.ok(ApiResponse.success(
                 MemberReportResponse.from(
-                        memberReportUsecase.approveReport(
+                        memberReportService.approveReport(
                                 authenticatedMember,
                                 reportId,
                                 new ReviewMemberReportCommand(
@@ -96,7 +96,7 @@ public class AdminMemberReportController {
     ) {
         return ResponseEntity.ok(ApiResponse.success(
                 MemberReportResponse.from(
-                        memberReportUsecase.rejectReport(
+                        memberReportService.rejectReport(
                                 authenticatedMember,
                                 reportId,
                                 new ReviewMemberReportCommand(

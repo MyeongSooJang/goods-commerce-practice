@@ -7,7 +7,6 @@ import com.example.member.application.dto.result.AccountVerificationCancelResult
 import com.example.member.application.dto.result.AccountVerificationConfirmResult;
 import com.example.member.application.dto.result.AccountVerificationCurrentResult;
 import com.example.member.application.dto.result.AccountVerificationSendResult;
-import com.example.member.application.port.in.AccountVerificationUsecase;
 import com.example.member.application.port.out.MemberEventPort;
 import com.example.member.application.port.out.MemberPersistencePort;
 import com.example.member.domain.exception.AccountVerificationAttemptLimitExceededException;
@@ -43,7 +42,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class AccountVerificationService implements AccountVerificationUsecase {
+public class AccountVerificationService {
 
     private static final Duration LOCK_TTL = Duration.ofSeconds(5);
 
@@ -57,7 +56,6 @@ public class AccountVerificationService implements AccountVerificationUsecase {
     private final AccountVerificationProperties properties;
     private final MemberEventPort memberEventPort;
 
-    @Override
     @Transactional
     public AccountVerificationSendResult createAccountVerification(
             UUID memberId,
@@ -120,7 +118,6 @@ public class AccountVerificationService implements AccountVerificationUsecase {
         );
     }
 
-    @Override
     @Transactional
     public AccountVerificationConfirmResult confirmAccountVerification(
             UUID memberId,
@@ -175,7 +172,6 @@ public class AccountVerificationService implements AccountVerificationUsecase {
         }
     }
 
-    @Override
     public AccountVerificationCurrentResult getCurrentAccountVerification(UUID memberId) {
         getMember(memberId);
         Optional<String> currentSessionId = sessionStore.findCurrentSessionId(memberId);
@@ -199,7 +195,6 @@ public class AccountVerificationService implements AccountVerificationUsecase {
         return buildCurrentResponse(current);
     }
 
-    @Override
     @Transactional
     public AccountVerificationSendResult resendAccountVerification(UUID memberId, String sessionId) {
         acquireLockOrThrow(sessionId);
@@ -241,7 +236,6 @@ public class AccountVerificationService implements AccountVerificationUsecase {
         }
     }
 
-    @Override
     @Transactional
     public AccountVerificationCancelResult cancelAccountVerification(UUID memberId, String sessionId) {
         acquireLockOrThrow(sessionId);

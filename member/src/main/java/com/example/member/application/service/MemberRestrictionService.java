@@ -4,7 +4,6 @@ import com.example.member.application.dto.command.CreateMemberRestrictionCommand
 import com.example.member.application.dto.result.MemberRestrictionResult;
 import com.example.member.application.port.out.MemberPersistencePort;
 import com.example.member.application.port.out.MemberRestrictionPersistencePort;
-import com.example.member.application.port.in.MemberRestrictionUsecase;
 import com.example.member.domain.exception.DuplicateActiveRestrictionException;
 import com.example.member.domain.exception.MemberNotFoundException;
 import com.example.member.domain.exception.MemberRestrictionNotFoundException;
@@ -26,13 +25,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class MemberRestrictionService implements MemberRestrictionUsecase {
+public class MemberRestrictionService {
 
     private final MemberPersistencePort memberPersistencePort;
     private final MemberRestrictionPersistencePort memberRestrictionPersistencePort;
 
     @Transactional
-    @Override
     public MemberRestrictionResult createRestriction(
             AuthenticatedMember authenticatedMember,
             CreateMemberRestrictionCommand command
@@ -63,7 +61,6 @@ public class MemberRestrictionService implements MemberRestrictionUsecase {
     }
 
     @Transactional
-    @Override
     public MemberRestrictionResult deactivateRestriction(
             AuthenticatedMember authenticatedMember,
             UUID restrictionId
@@ -78,7 +75,6 @@ public class MemberRestrictionService implements MemberRestrictionUsecase {
         return toResult(memberRestriction);
     }
 
-    @Override
     public List<MemberRestrictionResult> getAllMemberRestrictions(AuthenticatedMember authenticatedMember) {
         RoleGuard.requireAdmin(authenticatedMember);
 
@@ -90,7 +86,6 @@ public class MemberRestrictionService implements MemberRestrictionUsecase {
                 .toList();
     }
 
-    @Override
     public List<MemberRestrictionResult> getMemberRestrictions(
             AuthenticatedMember authenticatedMember,
             UUID memberId

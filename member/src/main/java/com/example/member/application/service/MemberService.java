@@ -9,8 +9,6 @@ import com.example.member.application.dto.result.ChangePasswordResult;
 import com.example.member.application.dto.result.CreateMemberResult;
 import com.example.member.application.dto.result.MemberResult;
 import com.example.member.application.dto.result.WithdrawMemberResult;
-import com.example.member.application.port.in.AuthUsecase;
-import com.example.member.application.port.in.MemberUsecase;
 import com.example.member.application.port.out.MemberWithdrawalCheckPort;
 import com.example.member.application.port.out.MemberEventPort;
 import com.example.member.application.port.out.MemberOauthAccountPersistencePort;
@@ -37,7 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class MemberService implements MemberUsecase {
+public class MemberService {
 
     private final MemberPersistencePort memberPersistencePort;
     private final PasswordEncoder passwordEncoder;
@@ -48,10 +46,9 @@ public class MemberService implements MemberUsecase {
     private final EmailVerificationService emailVerificationService;
     private final KakaoOAuthService kakaoOAuthService;
     private final MemberSignupProperties memberSignupProperties;
-    private final AuthUsecase authUsecase;
+    private final AuthService authService;
 
     @Transactional
-    @Override
     public CreateMemberResult createMember(CreateMemberCommand command) {
         validateCreateCommand(command);
 
@@ -89,20 +86,17 @@ public class MemberService implements MemberUsecase {
         return toCreateMemberResult(savedMember);
     }
 
-    @Override
     public MemberResult getMember(GetMemberQuery query) {
         validateGetMemberQuery(query);
         return toMemberResult(getMemberEntity(query.memberId()));
     }
 
-    @Override
     public MemberResult getCurrentMember(GetMemberQuery query) {
         validateGetMemberQuery(query);
         return toMemberResult(getMemberEntity(query.memberId()));
     }
 
     @Transactional
-    @Override
     public MemberResult updateMember(UpdateMemberCommand command) {
         validateUpdateCommand(command);
 
@@ -124,14 +118,12 @@ public class MemberService implements MemberUsecase {
     }
 
     @Transactional
-    @Override
     public MemberResult updateCurrentMember(UpdateMemberCommand command) {
         validateUpdateCommand(command);
         return updateMember(command);
     }
 
     @Transactional
-    @Override
     public ChangePasswordResult changeCurrentMemberPassword(ChangePasswordCommand command) {
         validateChangePasswordCommand(command);
 
@@ -151,7 +143,6 @@ public class MemberService implements MemberUsecase {
     }
 
     @Transactional
-    @Override
     public WithdrawMemberResult withdrawCurrentMember(WithdrawMemberCommand command) {
         validateWithdrawCommand(command);
 
@@ -174,7 +165,7 @@ public class MemberService implements MemberUsecase {
         LocalDateTime withdrawnAt = LocalDateTime.now();
         deleteOauthAccounts(member.getMemberId());
         member.withdraw(createWithdrawnEmail(member), withdrawnAt);
-        authUsecase.logoutAllSessions(normalizeRequired(command.authorizationHeader(), "authorizationHeader"));
+        authService.logoutAllSessions(normalizeRequired(command.authorizationHeader(), "authorizationHeader"));
 
         return new WithdrawMemberResult(
                 member.getMemberId(),

@@ -5,7 +5,6 @@ import com.example.member.application.dto.result.MemberOauthAccountListResult;
 import com.example.member.application.dto.result.MemberOauthAccountUnlinkResult;
 import com.example.member.application.port.out.MemberOauthAccountPersistencePort;
 import com.example.member.application.port.out.MemberPersistencePort;
-import com.example.member.application.port.in.MemberOauthAccountUsecase;
 import com.example.member.domain.exception.LastLoginMethodRemovalNotAllowedException;
 import com.example.member.domain.exception.MemberNotFoundException;
 import com.example.member.domain.exception.MemberOauthAccountNotFoundException;
@@ -22,12 +21,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class MemberOauthAccountService implements MemberOauthAccountUsecase {
+public class MemberOauthAccountService {
 
     private final MemberPersistencePort memberPersistencePort;
     private final MemberOauthAccountPersistencePort memberOauthAccountPersistencePort;
 
-    @Override
     public MemberOauthAccountListResult getCurrentMemberOauthAccounts(UUID memberId) {
         Member member = getMember(memberId);
         List<MemberOauthAccount> accounts = memberOauthAccountPersistencePort.findAllByMemberId(memberId);
@@ -51,7 +49,6 @@ public class MemberOauthAccountService implements MemberOauthAccountUsecase {
     }
 
     @Transactional
-    @Override
     public MemberOauthAccountUnlinkResult unlinkCurrentMemberOauthAccount(UUID memberId, String provider) {
         Member member = getMember(memberId);
         OAuthProvider oauthProvider = parseProvider(provider);

@@ -4,8 +4,8 @@ import com.example.member.application.dto.command.ChangePasswordCommand;
 import com.example.member.application.dto.command.UpdateMemberCommand;
 import com.example.member.application.dto.command.WithdrawMemberCommand;
 import com.example.member.application.dto.query.GetMemberQuery;
-import com.example.member.application.port.in.MemberOauthAccountUsecase;
-import com.example.member.application.port.in.MemberUsecase;
+import com.example.member.application.service.MemberOauthAccountService;
+import com.example.member.application.service.MemberService;
 import com.example.member.presentation.web.dto.ApiResponse;
 import com.example.member.presentation.web.dto.ChangePasswordRequest;
 import com.example.member.presentation.web.dto.ChangePasswordResponse;
@@ -39,8 +39,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "회원", description = "회원 CRUD API")
 public class MemberController {
 
-    private final MemberUsecase memberUsecase;
-    private final MemberOauthAccountUsecase memberOauthAccountUsecase;
+    private final MemberService memberService;
+    private final MemberOauthAccountService memberOauthAccountService;
 
     @GetMapping("/me")
     @Operation(summary = "현재 회원 조회", description = "현재 인증된 회원 정보를 조회합니다.")
@@ -48,7 +48,7 @@ public class MemberController {
             @CurrentMember AuthenticatedMember authenticatedMember
     ) {
         return ResponseEntity.ok(ApiResponse.success(
-                MemberResponse.from(memberUsecase.getCurrentMember(
+                MemberResponse.from(memberService.getCurrentMember(
                         new GetMemberQuery(authenticatedMember.memberId())
                 ))
         ));
@@ -61,7 +61,7 @@ public class MemberController {
             @Valid @RequestBody UpdateMemberRequest request
     ) {
         return ResponseEntity.ok(ApiResponse.success(
-                MemberResponse.from(memberUsecase.updateCurrentMember(new UpdateMemberCommand(
+                MemberResponse.from(memberService.updateCurrentMember(new UpdateMemberCommand(
                         authenticatedMember.memberId(),
                         request.nickname(),
                         request.phone(),
@@ -78,7 +78,7 @@ public class MemberController {
             @Valid @RequestBody ChangePasswordRequest request
     ) {
         return ResponseEntity.ok(ApiResponse.success(new ChangePasswordResponse(
-                memberUsecase.changeCurrentMemberPassword(new ChangePasswordCommand(
+                memberService.changeCurrentMemberPassword(new ChangePasswordCommand(
                         authenticatedMember.memberId(),
                         request.currentPassword(),
                         request.newPassword()
@@ -94,7 +94,7 @@ public class MemberController {
             @Valid @RequestBody WithdrawMemberRequest request
     ) {
         return ResponseEntity.ok(ApiResponse.success(
-                WithdrawMemberResponse.from(memberUsecase.withdrawCurrentMember(new WithdrawMemberCommand(
+                WithdrawMemberResponse.from(memberService.withdrawCurrentMember(new WithdrawMemberCommand(
                         authenticatedMember.memberId(),
                         request.currentPassword(),
                         authorizationHeader
@@ -109,7 +109,7 @@ public class MemberController {
     ) {
         return ResponseEntity.ok(ApiResponse.success(
                 MemberOauthAccountListResponse.from(
-                        memberOauthAccountUsecase.getCurrentMemberOauthAccounts(authenticatedMember.memberId())
+                        memberOauthAccountService.getCurrentMemberOauthAccounts(authenticatedMember.memberId())
                 )
         ));
     }
@@ -122,7 +122,7 @@ public class MemberController {
     ) {
         return ResponseEntity.ok(ApiResponse.success(
                 MemberOauthAccountUnlinkResponse.from(
-                        memberOauthAccountUsecase.unlinkCurrentMemberOauthAccount(authenticatedMember.memberId(), provider)
+                        memberOauthAccountService.unlinkCurrentMemberOauthAccount(authenticatedMember.memberId(), provider)
                 )
         ));
     }
@@ -130,7 +130,7 @@ public class MemberController {
     @GetMapping("/{memberId}")
     @Operation(summary = "회원 조회", description = "특정 회원 정보를 조회합니다.")
     public MemberResponse getMember(@PathVariable(name = "memberId") UUID memberId) {
-        return MemberResponse.from(memberUsecase.getMember(new GetMemberQuery(memberId)));
+        return MemberResponse.from(memberService.getMember(new GetMemberQuery(memberId)));
     }
 
     @PatchMapping("/{memberId}")
@@ -139,7 +139,7 @@ public class MemberController {
             @PathVariable(name = "memberId") UUID memberId,
             @Valid @RequestBody UpdateMemberRequest request
     ) {
-        return MemberResponse.from(memberUsecase.updateMember(new UpdateMemberCommand(
+        return MemberResponse.from(memberService.updateMember(new UpdateMemberCommand(
                 memberId,
                 request.nickname(),
                 request.phone(),

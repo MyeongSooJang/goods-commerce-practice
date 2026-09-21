@@ -1,7 +1,7 @@
 package com.example.member.presentation.web;
 
 import com.example.member.application.dto.command.CreateMemberReportCommand;
-import com.example.member.application.port.in.MemberReportUsecase;
+import com.example.member.application.service.MemberReportService;
 import com.example.member.presentation.web.dto.ApiResponse;
 import com.example.member.presentation.web.dto.CreateMemberReportRequest;
 import com.example.member.presentation.web.dto.MemberReportResponse;
@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "회원 신고", description = "회원 신고 API")
 public class MemberReportController {
 
-    private final MemberReportUsecase memberReportUsecase;
+    private final MemberReportService memberReportService;
 
     @PostMapping
     @Operation(summary = "회원 신고 생성", description = "회원에 대한 신고를 생성합니다.")
@@ -36,7 +36,7 @@ public class MemberReportController {
     ) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(MemberReportResponse.from(
-                        memberReportUsecase.createReport(
+                        memberReportService.createReport(
                                 authenticatedMember,
                                 new CreateMemberReportCommand(
                                         request.reportedMemberId(),
@@ -53,7 +53,7 @@ public class MemberReportController {
             @CurrentMember AuthenticatedMember authenticatedMember
     ) {
         return ResponseEntity.ok(ApiResponse.success(
-                memberReportUsecase.getMyReports(authenticatedMember).stream()
+                memberReportService.getMyReports(authenticatedMember).stream()
                         .map(MemberReportResponse::from)
                         .toList()
         ));

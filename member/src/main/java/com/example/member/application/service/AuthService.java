@@ -6,7 +6,6 @@ import com.example.member.application.dto.command.TokenRefreshCommand;
 import com.example.member.application.dto.result.AuthSessionListResult;
 import com.example.member.application.dto.result.AuthSessionResult;
 import com.example.member.application.dto.result.AuthTokenResult;
-import com.example.member.application.port.in.AuthUsecase;
 import com.example.member.application.port.out.MemberPersistencePort;
 import com.example.member.domain.exception.EmailVerificationRequiredException;
 import com.example.member.domain.exception.InvalidLoginException;
@@ -37,7 +36,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class AuthService implements AuthUsecase {
+public class AuthService {
 
     private final MemberPersistencePort memberPersistencePort;
     private final PasswordEncoder passwordEncoder;
@@ -46,7 +45,6 @@ public class AuthService implements AuthUsecase {
     private final TokenBlacklistStore tokenBlacklistStore;
     private final MemberRestrictionService memberRestrictionService;
 
-    @Override
     public AuthTokenResult login(LoginCommand command, AuthSessionMetadata metadata) {
         validateLoginCommand(command);
 
@@ -70,7 +68,6 @@ public class AuthService implements AuthUsecase {
         return issueLoginResponse(member, metadata);
     }
 
-    @Override
     public AuthTokenResult refresh(TokenRefreshCommand command, AuthSessionMetadata metadata) {
         validateRefreshCommand(command);
 
@@ -119,7 +116,6 @@ public class AuthService implements AuthUsecase {
         );
     }
 
-    @Override
     public AuthSessionListResult getSessions(UUID memberId, UUID currentSessionId) {
         List<AuthSessionResult> sessions = refreshTokenStore.findSessionsByMemberId(memberId).stream()
                 .sorted(Comparator.comparing(AuthSession::lastAccessedAt).reversed()
@@ -137,7 +133,6 @@ public class AuthService implements AuthUsecase {
         return new AuthSessionListResult(sessions);
     }
 
-    @Override
     public void logoutSession(
         String accessToken, 
         UUID memberId, 
@@ -163,7 +158,6 @@ public class AuthService implements AuthUsecase {
         );
     }
 
-    @Override
     public void logoutCurrentSession(String accessToken) {
         ParsedAccessToken parsedAccessToken = parseRequiredAccessToken(accessToken);
         refreshTokenStore.deleteSession(parsedAccessToken.memberId(), parsedAccessToken.sessionId());
@@ -177,7 +171,6 @@ public class AuthService implements AuthUsecase {
         );
     }
 
-    @Override
     public void logoutAllSessions(String accessToken) {
         ParsedAccessToken parsedAccessToken = parseRequiredAccessToken(accessToken);
         Set<UUID> sessionIds = refreshTokenStore.findSessionIdsByMemberId(parsedAccessToken.memberId());
@@ -194,7 +187,6 @@ public class AuthService implements AuthUsecase {
         );
     }
 
-    @Override
     public void logout(UUID memberId) {
         refreshTokenStore.deleteAllSessions(memberId);
     }
