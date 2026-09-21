@@ -117,6 +117,7 @@ pipeline {
                     string(credentialsId: 'AWS_SECRET_KEY', variable: 'AWS_SECRET_KEY'),
                     string(credentialsId: 'AWS_S3_BUCKET', variable: 'AWS_S3_BUCKET'),
                     string(credentialsId: 'SWEET_TRACKER_API_KEY', variable: 'SWEET_TRACKER_API_KEY'),
+                    string(credentialsId: 'EC2_HOST', variable: 'EC2_HOST'),
                 ]) {
                     sh '''
                         rm -f .env
@@ -134,12 +135,11 @@ pipeline {
                         echo "JWT_SECRET_KEY=${JWT_SECRET_KEY}" >> .env
                         echo "ACCOUNT_VERIFICATION_SECRET_KEY=${ACCOUNT_VERIFICATION_SECRET_KEY}" >> .env
                         echo "PAYMENT_WITHDRAW_CRYPTO_SECRET_KEY=${PAYMENT_WITHDRAW_CRYPTO_SECRET_KEY}" >> .env
-                        echo "EUREKA_DEFAULT_ZONE=http://localhost:8761/eureka/" >> .env
                         echo "TOSS_PAYMENTS_BASE_URL=https://api.tosspayments.com" >> .env
                         echo "TOSS_PAYMENTS_CLIENT_KEY=${TOSS_PAYMENTS_CLIENT_KEY}" >> .env
                         echo "TOSS_PAYMENTS_SECRET_KEY=${TOSS_PAYMENTS_SECRET_KEY}" >> .env
-                        echo "TOSS_PAYMENTS_SUCCESS_URL=http://13.125.101.82:8080/payments/toss/success" >> .env
-                        echo "TOSS_PAYMENTS_FAIL_URL=http://13.125.101.82:8080/payments/toss/fail" >> .env
+                        echo "TOSS_PAYMENTS_SUCCESS_URL=http://${EC2_HOST}:8080/payments/toss/success" >> .env
+                        echo "TOSS_PAYMENTS_FAIL_URL=http://${EC2_HOST}:8080/payments/toss/fail" >> .env
                         echo "TOSS_PAYMENTS_WIDGET_ENABLED=true" >> .env
                         echo "OPENAI_API_KEY=${OPENAI_API_KEY}" >> .env
                         echo "AI_EMBEDDING_MODEL=text-embedding-3-small" >> .env
@@ -156,7 +156,7 @@ pipeline {
                         echo "SMTP_STARTTLS_ENABLE=true" >> .env
                         echo "MAIL_FROM=no-reply@todaylunch.local" >> .env
                         echo "MAIL_FROM_NAME=TodayLunch" >> .env
-                        echo "EMAIL_VERIFICATION_FRONTEND_URL=http://13.125.101.82:8080/email-verification" >> .env
+                        echo "EMAIL_VERIFICATION_FRONTEND_URL=http://${EC2_HOST}:8080/email-verification" >> .env
                         echo "KAKAO_CLIENT_ID=${KAKAO_CLIENT_ID}" >> .env
                         echo "KAKAO_CLIENT_SECRET=${KAKAO_CLIENT_SECRET}" >> .env
                         echo "AWS_ACCESS_KEY=${AWS_ACCESS_KEY}" >> .env
