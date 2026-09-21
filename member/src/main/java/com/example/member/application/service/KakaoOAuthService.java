@@ -6,7 +6,7 @@ import com.example.member.application.dto.result.KakaoOAuthResult;
 import com.example.member.application.port.out.MemberEventPort;
 import com.example.member.application.port.out.MemberOauthAccountPersistencePort;
 import com.example.member.application.port.out.MemberPersistencePort;
-import com.example.member.common.exception.InvalidLoginException;
+import com.example.member.domain.exception.InvalidLoginException;
 import com.example.member.config.KakaoOAuthProperties;
 import com.example.member.domain.entity.Member;
 import com.example.member.domain.entity.MemberOauthAccount;

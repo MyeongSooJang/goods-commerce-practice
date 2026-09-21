@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 
 import com.example.member.application.dto.command.PasswordResetConfirmCommand;
 import com.example.member.application.dto.command.PasswordResetSendCommand;
-import com.example.member.common.exception.InvalidPasswordResetTokenException;
+import com.example.member.domain.exception.InvalidPasswordResetTokenException;
 import com.example.member.config.PasswordResetProperties;
 import com.example.member.domain.entity.Member;
 import com.example.member.domain.enumtype.MemberStatus;

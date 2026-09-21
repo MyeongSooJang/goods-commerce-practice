@@ -7,7 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.example.member.application.port.out.MemberEventPort;
-import com.example.member.common.exception.AccountVerificationNotAllowedException;
+import com.example.member.domain.exception.AccountVerificationNotAllowedException;
 import com.example.member.domain.entity.Member;
 import com.example.member.domain.entity.Seller;
 import com.example.member.domain.enumtype.MemberStatus;

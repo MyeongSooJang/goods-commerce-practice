@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 
 import com.example.member.application.dto.command.CreateMemberRestrictionCommand;
 import com.example.member.application.dto.result.MemberRestrictionResult;
-import com.example.member.common.exception.DuplicateActiveRestrictionException;
+import com.example.member.domain.exception.DuplicateActiveRestrictionException;
 import com.example.member.domain.entity.Member;
 import com.example.member.domain.entity.MemberRestriction;
 import com.example.member.domain.enumtype.MemberStatus;

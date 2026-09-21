@@ -5,7 +5,7 @@ import com.example.member.application.dto.result.AuthTokenResult;
 import com.example.member.application.dto.result.EmailVerificationAutoLoginTokenResult;
 import com.example.member.application.port.out.EmailVerificationAutoLoginTokenStore;
 import com.example.member.application.port.out.MemberPersistencePort;
-import com.example.member.common.exception.InvalidEmailVerificationAutoLoginTokenException;
+import com.example.member.domain.exception.InvalidEmailVerificationAutoLoginTokenException;
 import com.example.member.domain.entity.Member;
 import java.time.Instant;
 import java.util.UUID;

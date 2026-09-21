@@ -1,35 +1,36 @@
 package com.example.member.presentation.web.exception;
 
-import com.example.member.common.exception.AccountVerificationAttemptLimitExceededException;
-import com.example.member.common.exception.AccountVerificationNotAllowedException;
-import com.example.member.common.exception.AccountVerificationNotFoundException;
-import com.example.member.common.exception.AccountVerificationResendLimitExceededException;
-import com.example.member.common.exception.DuplicateActiveRestrictionException;
-import com.example.member.common.exception.DuplicateMemberEmailException;
-import com.example.member.common.exception.DuplicateMemberReportException;
-import com.example.member.common.exception.EmailSendFailedException;
-import com.example.member.common.exception.EmailVerificationNotAllowedException;
-import com.example.member.common.exception.EmailVerificationRequiredException;
-import com.example.member.common.exception.ExpiredAccountVerificationException;
-import com.example.member.common.exception.ExpiredEmailVerificationException;
-import com.example.member.common.exception.InvalidAccountVerificationCodeException;
-import com.example.member.common.exception.InvalidCurrentPasswordException;
-import com.example.member.common.exception.InvalidEmailVerificationAutoLoginTokenException;
-import com.example.member.common.exception.InvalidEmailVerificationTokenException;
-import com.example.member.common.exception.InvalidLoginException;
-import com.example.member.common.exception.InvalidPasswordResetTokenException;
-import com.example.member.common.exception.LastLoginMethodRemovalNotAllowedException;
-import com.example.member.common.exception.MemberNotFoundException;
-import com.example.member.common.exception.MemberOauthAccountNotFoundException;
-import com.example.member.common.exception.MemberReportNotFoundException;
-import com.example.member.common.exception.MemberRestrictedException;
-import com.example.member.common.exception.MemberRestrictionNotFoundException;
-import com.example.member.common.exception.MemberWithdrawnException;
-import com.example.member.common.exception.MemberWithdrawalException;
-import com.example.member.common.exception.RefreshTokenNotFoundException;
-import com.example.member.common.exception.SelfReportNotAllowedException;
-import com.example.member.common.exception.SellerAlreadyRegisteredException;
-import com.example.member.common.exception.SellerNotFoundException;
+import com.example.member.domain.exception.AccountVerificationAttemptLimitExceededException;
+import com.example.member.domain.exception.AccountVerificationNotAllowedException;
+import com.example.member.domain.exception.AccountVerificationNotFoundException;
+import com.example.member.domain.exception.AccountVerificationResendLimitExceededException;
+import com.example.member.domain.exception.DuplicateActiveRestrictionException;
+import com.example.member.domain.exception.DuplicateMemberEmailException;
+import com.example.member.domain.exception.DuplicateMemberReportException;
+import com.example.member.domain.exception.EmailSendFailedException;
+import com.example.member.domain.exception.EmailVerificationNotAllowedException;
+import com.example.member.domain.exception.EmailVerificationRequiredException;
+import com.example.member.domain.exception.ExpiredAccountVerificationException;
+import com.example.member.domain.exception.ExpiredEmailVerificationException;
+import com.example.member.domain.exception.InvalidAccountVerificationCodeException;
+import com.example.member.domain.exception.InvalidCurrentPasswordException;
+import com.example.member.domain.exception.InvalidEmailVerificationAutoLoginTokenException;
+import com.example.member.domain.exception.InvalidEmailVerificationTokenException;
+import com.example.member.domain.exception.InvalidLoginException;
+import com.example.member.domain.exception.InvalidPasswordResetTokenException;
+import com.example.member.domain.exception.LastLoginMethodRemovalNotAllowedException;
+import com.example.member.domain.exception.MemberNotFoundException;
+import com.example.member.domain.exception.MemberOauthAccountNotFoundException;
+import com.example.member.domain.exception.MemberReportNotFoundException;
+import com.example.member.domain.exception.MemberRestrictedException;
+import com.example.member.domain.exception.MemberRestrictionNotFoundException;
+import com.example.member.domain.exception.MemberWithdrawnException;
+import com.example.member.domain.exception.MemberWithdrawalException;
+import com.example.member.domain.exception.RefreshTokenNotFoundException;
+import com.example.member.domain.exception.SelfReportNotAllowedException;
+import com.example.member.domain.exception.SellerAlreadyRegisteredException;
+import com.example.member.domain.exception.SellerNotFoundException;
+import com.example.common.exception.BusinessException;
 import com.example.member.presentation.web.dto.ApiResponse;
 import com.example.common.security.exception.AuthorizationDeniedException;
 import com.example.common.security.exception.InvalidTokenException;
@@ -321,5 +322,12 @@ public class MemberExceptionHandler {
     ) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ApiResponse.fail("ACCOUNT_VERIFICATION_NOT_ALLOWED", exception.getMessage()));
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ApiResponse<Object>> handleBusinessException(BusinessException e) {
+        return ResponseEntity
+                .status(e.getStatus())
+                .body(ApiResponse.fail("BUSINESS_ERROR", e.getMessage()));
     }
 }

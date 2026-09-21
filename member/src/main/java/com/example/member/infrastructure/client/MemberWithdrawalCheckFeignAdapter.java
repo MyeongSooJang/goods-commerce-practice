@@ -1,7 +1,7 @@
 package com.example.member.infrastructure.client;
 
 import com.example.member.application.port.out.MemberWithdrawalCheckPort;
-import com.example.member.common.exception.MemberWithdrawalException;
+import com.example.member.domain.exception.MemberWithdrawalException;
 import com.example.member.domain.entity.Member;
 import com.example.member.domain.enumtype.MemberStatus;
 import com.example.member.infrastructure.client.dto.response.ApiResponse;

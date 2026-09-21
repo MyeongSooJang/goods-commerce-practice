@@ -20,9 +20,9 @@ import com.example.member.application.port.out.MemberOauthAccountPersistencePort
 import com.example.member.application.port.out.MemberPersistencePort;
 import com.example.member.application.port.out.ProfileImageUrlPort;
 import com.example.member.application.port.out.MemberWithdrawalCheckPort;
-import com.example.member.common.exception.DuplicateMemberEmailException;
-import com.example.member.common.exception.InvalidCurrentPasswordException;
-import com.example.member.common.exception.MemberWithdrawalException;
+import com.example.member.domain.exception.DuplicateMemberEmailException;
+import com.example.member.domain.exception.InvalidCurrentPasswordException;
+import com.example.member.domain.exception.MemberWithdrawalException;
 import com.example.member.config.MemberSignupProperties;
 import com.example.member.domain.entity.Member;
 import com.example.member.domain.entity.MemberOauthAccount;
