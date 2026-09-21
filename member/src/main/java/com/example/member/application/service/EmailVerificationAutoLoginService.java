@@ -20,7 +20,7 @@ import com.example.member.infrastructure.redis.emailverification.EmailVerificati
 public class EmailVerificationAutoLoginService {
 
     private final RedisEmailVerificationAutoLoginTokenStore emailVerificationAutoLoginTokenStore;
-    private final MemberRepository memberPersistencePort;
+    private final MemberRepository memberRepository;
     private final AuthService authService;
     private final com.example.member.config.EmailVerificationProperties emailVerificationProperties;
 
@@ -49,7 +49,7 @@ public class EmailVerificationAutoLoginService {
         EmailVerificationAutoLoginToken storedToken = emailVerificationAutoLoginTokenStore.consume(normalizedToken)
                 .orElseThrow(InvalidEmailVerificationAutoLoginTokenException::new);
 
-        Member member = memberPersistencePort.findById(storedToken.memberId())
+        Member member = memberRepository.findById(storedToken.memberId())
                 .orElseThrow(InvalidEmailVerificationAutoLoginTokenException::new);
 
         return authService.login(member, metadata == null ? AuthSessionMetadata.empty() : metadata);

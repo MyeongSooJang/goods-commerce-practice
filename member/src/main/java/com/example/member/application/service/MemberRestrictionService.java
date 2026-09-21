@@ -27,8 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class MemberRestrictionService {
 
-    private final MemberRepository memberPersistencePort;
-    private final MemberRestrictionRepository memberRestrictionPersistencePort;
+    private final MemberRepository memberRepository;
+    private final MemberRestrictionRepository memberRestrictionRepository;
 
     @Transactional
     public MemberRestrictionResult createRestriction(
@@ -39,11 +39,11 @@ public class MemberRestrictionService {
         validateCreateCommand(command);
 
         UUID memberId = command.memberId();
-        memberPersistencePort.findById(memberId).orElseThrow(MemberNotFoundException::new);
+        memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
 
         LocalDateTime now = LocalDateTime.now();
         RestrictionType restrictionType = command.restrictionType();
-        if (memberRestrictionPersistencePort.existsActiveRestriction(memberId, restrictionType, now)) {
+        if (memberRestrictionRepository.existsActiveRestriction(memberId, restrictionType, now)) {
             throw new DuplicateActiveRestrictionException();
         }
 
@@ -57,7 +57,7 @@ public class MemberRestrictionService {
                 now
         );
 
-        return toResult(memberRestrictionPersistencePort.save(memberRestriction));
+        return toResult(memberRestrictionRepository.save(memberRestriction));
     }
 
     @Transactional
@@ -67,7 +67,7 @@ public class MemberRestrictionService {
     ) {
         RoleGuard.requireAdmin(authenticatedMember);
 
-        MemberRestriction memberRestriction = memberRestrictionPersistencePort.findById(restrictionId)
+        MemberRestriction memberRestriction = memberRestrictionRepository.findById(restrictionId)
                 .orElseThrow(MemberRestrictionNotFoundException::new);
 
         LocalDateTime now = LocalDateTime.now();
@@ -78,7 +78,7 @@ public class MemberRestrictionService {
     public List<MemberRestrictionResult> getAllMemberRestrictions(AuthenticatedMember authenticatedMember) {
         RoleGuard.requireAdmin(authenticatedMember);
 
-        List<MemberRestriction> restrictions = memberRestrictionPersistencePort.findAll();
+        List<MemberRestriction> restrictions = memberRestrictionRepository.findAll();
         Map<UUID, String> nicknamesById = resolveNicknames(restrictions);
 
         return restrictions.stream()
@@ -91,9 +91,9 @@ public class MemberRestrictionService {
             UUID memberId
     ) {
         RoleGuard.requireAdmin(authenticatedMember);
-        memberPersistencePort.findById(memberId).orElseThrow(MemberNotFoundException::new);
+        memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
 
-        List<MemberRestriction> restrictions = memberRestrictionPersistencePort.findAllByMemberId(memberId);
+        List<MemberRestriction> restrictions = memberRestrictionRepository.findAllByMemberId(memberId);
         Map<UUID, String> nicknamesById = resolveNicknames(restrictions);
 
         return restrictions.stream()
@@ -102,7 +102,7 @@ public class MemberRestrictionService {
     }
 
     public MemberRestriction getActiveLoginRestriction(UUID memberId, LocalDateTime now) {
-        return memberRestrictionPersistencePort.findActiveRestriction(memberId, RestrictionType.LOGIN_BAN, now)
+        return memberRestrictionRepository.findActiveRestriction(memberId, RestrictionType.LOGIN_BAN, now)
                 .orElse(null);
     }
 
@@ -151,7 +151,7 @@ public class MemberRestrictionService {
             }
         }
 
-        return memberPersistencePort.findAllByIds(memberIds).stream()
+        return memberRepository.findAllByIds(memberIds).stream()
                 .collect(Collectors.toMap(Member::getMemberId, Member::getNickname, (left, right) -> left));
     }
 }

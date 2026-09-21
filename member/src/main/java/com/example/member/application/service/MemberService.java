@@ -37,11 +37,11 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class MemberService {
 
-    private final MemberRepository memberPersistencePort;
+    private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final MemberEventPublisher memberEventPort;
     private final MemberWithdrawalCheckFeignAdapter memberWithdrawalCheckPort;
-    private final MemberOauthAccountRepository memberOauthAccountPersistencePort;
+    private final MemberOauthAccountRepository memberOauthAccountRepository;
     private final ProfileImageUrlResolver profileImageUrlPort;
     private final EmailVerificationService emailVerificationService;
     private final KakaoOAuthService kakaoOAuthService;
@@ -53,7 +53,7 @@ public class MemberService {
         validateCreateCommand(command);
 
         String email = normalizeRequired(command.email(), "email");
-        if (memberPersistencePort.existsByEmail(email)) {
+        if (memberRepository.existsByEmail(email)) {
             throw new DuplicateMemberEmailException();
         }
 
@@ -76,7 +76,7 @@ public class MemberService {
                 now
         );
 
-        Member savedMember = memberPersistencePort.save(member);
+        Member savedMember = memberRepository.save(member);
         linkPendingKakaoAccountIfPresent(savedMember.getMemberId(), command.kakaoLinkToken());
         if (memberSignupProperties.requireEmailVerification()) {
             emailVerificationService.createSignupVerification(savedMember);
@@ -176,7 +176,7 @@ public class MemberService {
     }
 
     private Member getMemberEntity(UUID memberId) {
-        return memberPersistencePort.findById(memberId)
+        return memberRepository.findById(memberId)
                 .orElseThrow(MemberNotFoundException::new);
     }
 
@@ -279,8 +279,8 @@ public class MemberService {
     }
 
     private void deleteOauthAccounts(UUID memberId) {
-        List<MemberOauthAccount> oauthAccounts = memberOauthAccountPersistencePort.findAllByMemberId(memberId);
-        oauthAccounts.forEach(memberOauthAccountPersistencePort::delete);
+        List<MemberOauthAccount> oauthAccounts = memberOauthAccountRepository.findAllByMemberId(memberId);
+        oauthAccounts.forEach(memberOauthAccountRepository::delete);
     }
 
     private void linkPendingKakaoAccountIfPresent(UUID memberId, String kakaoLinkToken) {

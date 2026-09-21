@@ -34,8 +34,8 @@ public class KakaoOAuthService {
     private final KakaoOAuthProperties kakaoOAuthProperties;
     private final KakaoOAuthClient kakaoOAuthClient;
     private final KakaoOAuthAuthorizeStateStore kakaoOAuthAuthorizeStateStore;
-    private final MemberRepository memberPersistencePort;
-    private final MemberOauthAccountRepository memberOauthAccountPersistencePort;
+    private final MemberRepository memberRepository;
+    private final MemberOauthAccountRepository memberOauthAccountRepository;
     private final AuthService authService;
     private final MemberEventPublisher memberEventPort;
 
@@ -162,9 +162,9 @@ public class KakaoOAuthService {
         String email = kakaoEmail(profile);
         String nickname = kakaoNickname(profile);
 
-        return memberOauthAccountPersistencePort.findByProviderAndProviderUserId(PROVIDER, providerUserId)
+        return memberOauthAccountRepository.findByProviderAndProviderUserId(PROVIDER, providerUserId)
                 .map(linkedAccount -> {
-                    Member member = memberPersistencePort.findById(linkedAccount.getMemberId())
+                    Member member = memberRepository.findById(linkedAccount.getMemberId())
                             .orElseThrow(InvalidLoginException::new);
                     if (!member.isActive()) {
                         throw new InvalidLoginException();
@@ -191,12 +191,12 @@ public class KakaoOAuthService {
         String email = kakaoEmail(profile);
         String nickname = kakaoNickname(profile);
 
-        Member member = memberPersistencePort.findById(memberId).orElseThrow(InvalidLoginException::new);
+        Member member = memberRepository.findById(memberId).orElseThrow(InvalidLoginException::new);
         if (!member.isActive()) {
             throw new InvalidLoginException();
         }
 
-        var existingAccount = memberOauthAccountPersistencePort.findByProviderAndProviderUserId(PROVIDER, providerUserId);
+        var existingAccount = memberOauthAccountRepository.findByProviderAndProviderUserId(PROVIDER, providerUserId);
         if (existingAccount.isPresent()) {
             if (!existingAccount.get().getMemberId().equals(memberId)) {
                 throw new IllegalStateException("KAKAO_ALREADY_LINKED_TO_ANOTHER_MEMBER");
@@ -216,7 +216,7 @@ public class KakaoOAuthService {
             );
         }
 
-        if (memberOauthAccountPersistencePort.existsByMemberIdAndProvider(memberId, PROVIDER)) {
+        if (memberOauthAccountRepository.existsByMemberIdAndProvider(memberId, PROVIDER)) {
             throw new IllegalStateException("KAKAO_ALREADY_LINKED");
         }
 
@@ -280,13 +280,13 @@ public class KakaoOAuthService {
     }
 
     private void linkPendingAccount(UUID memberId, KakaoOAuthPendingLink pendingLink) {
-        if (memberOauthAccountPersistencePort.existsByProviderAndProviderUserId(PROVIDER, pendingLink.providerUserId())) {
+        if (memberOauthAccountRepository.existsByProviderAndProviderUserId(PROVIDER, pendingLink.providerUserId())) {
             throw new IllegalStateException("KAKAO_ALREADY_LINKED_TO_ANOTHER_MEMBER");
         }
-        if (memberOauthAccountPersistencePort.existsByMemberIdAndProvider(memberId, PROVIDER)) {
+        if (memberOauthAccountRepository.existsByMemberIdAndProvider(memberId, PROVIDER)) {
             throw new IllegalStateException("KAKAO_ALREADY_LINKED");
         }
-        memberPersistencePort.findById(memberId).orElseThrow(InvalidLoginException::new);
+        memberRepository.findById(memberId).orElseThrow(InvalidLoginException::new);
 
         LocalDateTime now = LocalDateTime.now();
         saveLinkedAccount(
@@ -305,7 +305,7 @@ public class KakaoOAuthService {
             String nickname,
             LocalDateTime linkedAt
     ) {
-        memberOauthAccountPersistencePort.save(MemberOauthAccount.create(
+        memberOauthAccountRepository.save(MemberOauthAccount.create(
                 UUID.randomUUID(),
                 memberId,
                 PROVIDER,

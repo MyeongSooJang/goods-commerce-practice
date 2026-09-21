@@ -29,8 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class MemberReportService {
 
-    private final MemberRepository memberPersistencePort;
-    private final MemberReportRepository memberReportPersistencePort;
+    private final MemberRepository memberRepository;
+    private final MemberReportRepository memberReportRepository;
     private final MemberRestrictionService memberRestrictionService;
 
     @Transactional
@@ -47,10 +47,10 @@ public class MemberReportService {
             throw new SelfReportNotAllowedException();
         }
 
-        memberPersistencePort.findById(reporterId).orElseThrow(MemberNotFoundException::new);
-        memberPersistencePort.findById(reportedMemberId).orElseThrow(MemberNotFoundException::new);
+        memberRepository.findById(reporterId).orElseThrow(MemberNotFoundException::new);
+        memberRepository.findById(reportedMemberId).orElseThrow(MemberNotFoundException::new);
 
-        if (memberReportPersistencePort.existsPendingReport(reporterId, reportedMemberId)) {
+        if (memberReportRepository.existsPendingReport(reporterId, reportedMemberId)) {
             throw new DuplicateMemberReportException();
         }
 
@@ -62,12 +62,12 @@ public class MemberReportService {
                 command.reportType(),
                 LocalDateTime.now()
         );
-        return toResult(memberReportPersistencePort.save(memberReport));
+        return toResult(memberReportRepository.save(memberReport));
     }
 
     public List<MemberReportResult> getMyReports(AuthenticatedMember authenticatedMember) {
         validateReporter(authenticatedMember);
-        List<MemberReport> reports = memberReportPersistencePort.findAllByReporterId(authenticatedMember.memberId());
+        List<MemberReport> reports = memberReportRepository.findAllByReporterId(authenticatedMember.memberId());
         Map<UUID, String> nicknamesById = resolveNicknames(reports);
 
         return reports.stream()
@@ -77,8 +77,8 @@ public class MemberReportService {
 
     public List<MemberReportResult> getReportsForMember(AuthenticatedMember authenticatedMember, UUID memberId) {
         RoleGuard.requireAdmin(authenticatedMember);
-        memberPersistencePort.findById(memberId).orElseThrow(MemberNotFoundException::new);
-        List<MemberReport> reports = memberReportPersistencePort.findAllByReportedMemberId(memberId);
+        memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
+        List<MemberReport> reports = memberReportRepository.findAllByReportedMemberId(memberId);
         Map<UUID, String> nicknamesById = resolveNicknames(reports);
 
         return reports.stream()
@@ -88,7 +88,7 @@ public class MemberReportService {
 
     public List<MemberReportResult> getAllReports(AuthenticatedMember authenticatedMember) {
         RoleGuard.requireAdmin(authenticatedMember);
-        List<MemberReport> reports = memberReportPersistencePort.findAll();
+        List<MemberReport> reports = memberReportRepository.findAll();
         Map<UUID, String> nicknamesById = resolveNicknames(reports);
 
         return reports.stream()
@@ -99,7 +99,7 @@ public class MemberReportService {
     public MemberReportResult getReportDetail(AuthenticatedMember authenticatedMember, UUID reportId) {
         RoleGuard.requireAdmin(authenticatedMember);
         return toResult(
-                memberReportPersistencePort.findById(reportId)
+                memberReportRepository.findById(reportId)
                         .orElseThrow(MemberReportNotFoundException::new)
         );
     }
@@ -113,7 +113,7 @@ public class MemberReportService {
         RoleGuard.requireAdmin(authenticatedMember);
         validateReviewCommand(command);
 
-        MemberReport memberReport = memberReportPersistencePort.findById(reportId)
+        MemberReport memberReport = memberReportRepository.findById(reportId)
                 .orElseThrow(MemberReportNotFoundException::new);
         memberReport.approve(authenticatedMember.memberId(), command.reviewComment(), LocalDateTime.now());
 
@@ -145,7 +145,7 @@ public class MemberReportService {
         RoleGuard.requireAdmin(authenticatedMember);
         validateReviewCommand(command);
 
-        MemberReport memberReport = memberReportPersistencePort.findById(reportId)
+        MemberReport memberReport = memberReportRepository.findById(reportId)
                 .orElseThrow(MemberReportNotFoundException::new);
         memberReport.reject(authenticatedMember.memberId(), command.reviewComment(), LocalDateTime.now());
         return toResult(memberReport);
@@ -213,7 +213,7 @@ public class MemberReportService {
             }
         }
 
-        return memberPersistencePort.findAllByIds(memberIds).stream()
+        return memberRepository.findAllByIds(memberIds).stream()
                 .collect(Collectors.toMap(Member::getMemberId, Member::getNickname, (left, right) -> left));
     }
 }

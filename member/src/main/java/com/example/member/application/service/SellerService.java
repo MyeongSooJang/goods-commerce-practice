@@ -21,8 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class SellerService {
 
-    private final SellerRepository sellerPersistencePort;
-    private final MemberRepository memberPersistencePort;
+    private final SellerRepository sellerRepository;
+    private final MemberRepository memberRepository;
     private final AccountVerificationService accountVerificationService;
 
     @Transactional
@@ -30,7 +30,7 @@ public class SellerService {
         validateRegisterCommand(command);
         getMember(memberId);
 
-        if (sellerPersistencePort.existsByMemberId(memberId)) {
+        if (sellerRepository.existsByMemberId(memberId)) {
             throw new SellerAlreadyRegisteredException();
         }
 
@@ -45,7 +45,7 @@ public class SellerService {
 
     public SellerResult getCurrentSeller(UUID memberId) {
         getMember(memberId);
-        Seller seller = sellerPersistencePort.findByMemberId(memberId)
+        Seller seller = sellerRepository.findByMemberId(memberId)
                 .orElseThrow(SellerNotFoundException::new);
 
         return new SellerResult(
@@ -64,7 +64,7 @@ public class SellerService {
     }
 
     private Member getMember(UUID memberId) {
-        return memberPersistencePort.findById(memberId)
+        return memberRepository.findById(memberId)
                 .orElseThrow(MemberNotFoundException::new);
     }
 

@@ -25,8 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class EmailVerificationService {
 
-    private final EmailVerificationRepository emailVerificationPersistencePort;
-    private final MemberRepository memberPersistencePort;
+    private final EmailVerificationRepository emailVerificationRepository;
+    private final MemberRepository memberRepository;
     private final EmailSender emailSender;
     private final EmailVerificationProperties emailVerificationProperties;
     private final EmailVerificationAutoLoginService emailVerificationAutoLoginService;
@@ -48,7 +48,7 @@ public class EmailVerificationService {
                 now.plus(emailVerificationProperties.expiration())
         );
 
-        EmailVerification saved = emailVerificationPersistencePort.save(emailVerification);
+        EmailVerification saved = emailVerificationRepository.save(emailVerification);
         emailSender.send(
                 targetMember.getEmail(),
                 buildSignupVerificationSubject(),
@@ -61,7 +61,7 @@ public class EmailVerificationService {
     @Transactional
     public EmailVerificationConfirmResult confirmSignupVerification(String token) {
         String normalizedToken = normalizeRequired(token, "token");
-        EmailVerification emailVerification = emailVerificationPersistencePort.findByToken(normalizedToken)
+        EmailVerification emailVerification = emailVerificationRepository.findByToken(normalizedToken)
                 .orElseThrow(InvalidEmailVerificationTokenException::new);
 
         LocalDateTime now = LocalDateTime.now();
@@ -70,7 +70,7 @@ public class EmailVerificationService {
             throw new ExpiredEmailVerificationException();
         }
 
-        Member member = memberPersistencePort.findById(emailVerification.getMemberId())
+        Member member = memberRepository.findById(emailVerification.getMemberId())
                 .orElseThrow(() -> new IllegalArgumentException("이메일 인증 대상 회원을 찾을 수 없습니다."));
 
         if (member.getStatus() == MemberStatus.PENDING_VERIFICATION) {
@@ -95,7 +95,7 @@ public class EmailVerificationService {
     @Transactional
     public EmailVerification resendSignupVerification(String email) {
         String normalizedEmail = normalizeRequired(email, "email");
-        Member member = memberPersistencePort.findByEmail(normalizedEmail)
+        Member member = memberRepository.findByEmail(normalizedEmail)
                 .orElseThrow(() -> new IllegalArgumentException("해당 이메일의 회원을 찾을 수 없습니다."));
 
         if (member.isActive()) {
@@ -111,7 +111,7 @@ public class EmailVerificationService {
     }
 
     private void cancelPendingSignupVerifications(UUID memberId, LocalDateTime now) {
-        List<EmailVerification> pendingVerifications = emailVerificationPersistencePort.findPendingByMemberIdAndPurpose(
+        List<EmailVerification> pendingVerifications = emailVerificationRepository.findPendingByMemberIdAndPurpose(
                 memberId,
                 EmailVerificationPurpose.SIGNUP
         );

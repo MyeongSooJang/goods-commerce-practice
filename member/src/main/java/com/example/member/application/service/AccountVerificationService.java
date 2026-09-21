@@ -46,7 +46,7 @@ public class AccountVerificationService {
 
     private static final Duration LOCK_TTL = Duration.ofSeconds(5);
 
-    private final MemberRepository memberPersistencePort;
+    private final MemberRepository memberRepository;
     private final AccountVerificationSessionStore sessionStore;
     private final SellerDraftStore sellerDraftStore;
     private final AccountEncryptionService accountEncryptionService;
@@ -281,7 +281,7 @@ public class AccountVerificationService {
     }
 
     private Member getMember(UUID memberId) {
-        return memberPersistencePort.findById(memberId)
+        return memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
     }
 

@@ -26,8 +26,8 @@ public class SellerPromotionService {
 
     private final AccountVerificationSessionStore sessionStore;
     private final SellerDraftStore sellerDraftStore;
-    private final SellerRepository sellerPersistencePort;
-    private final MemberRepository memberPersistencePort;
+    private final SellerRepository sellerRepository;
+    private final MemberRepository memberRepository;
     private final AccountEncryptionService accountEncryptionService;
     private final MemberEventPublisher memberEventPort;
 
@@ -45,13 +45,13 @@ public class SellerPromotionService {
         SellerDraft draft = sellerDraftStore.findDraft(session.getDraftId())
                 .orElseThrow(() -> new IllegalStateException("판매자 등록 초안이 존재하지 않습니다."));
 
-        if (sellerPersistencePort.existsByMemberId(memberId)) {
+        if (sellerRepository.existsByMemberId(memberId)) {
             sellerDraftStore.deleteDraft(draft.getDraftId());
             sellerDraftStore.deleteCurrentDraft(memberId);
             return;
         }
 
-        Member member = memberPersistencePort.findById(memberId)
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(MemberNotFoundException::new);
 
         LocalDateTime now = LocalDateTime.now();
@@ -64,7 +64,7 @@ public class SellerPromotionService {
                 now
         );
 
-        sellerPersistencePort.save(seller);
+        sellerRepository.save(seller);
         member.changeRole(MemberRole.SELLER, now);
         memberEventPort.publishSellerPromoted(member, seller);
 

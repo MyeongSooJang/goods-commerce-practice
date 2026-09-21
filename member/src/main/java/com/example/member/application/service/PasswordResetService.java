@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class PasswordResetService {
 
-    private final MemberRepository memberPersistencePort;
+    private final MemberRepository memberRepository;
     private final PasswordResetTokenStore passwordResetTokenStore;
     private final EmailSender emailSender;
     private final PasswordResetProperties passwordResetProperties;
@@ -33,7 +33,7 @@ public class PasswordResetService {
     public PasswordResetSendResult sendPasswordReset(PasswordResetSendCommand command) {
         String email = normalizeRequired(command == null ? null : command.email(), "email");
 
-        memberPersistencePort.findByEmail(email).ifPresent(this::createAndSendToken);
+        memberRepository.findByEmail(email).ifPresent(this::createAndSendToken);
         return new PasswordResetSendResult("이메일이 존재하면 비밀번호 재설정 안내를 발송했습니다.");
     }
 
@@ -50,7 +50,7 @@ public class PasswordResetService {
         PasswordResetToken passwordResetToken = passwordResetTokenStore.find(token)
                 .orElseThrow(InvalidPasswordResetTokenException::new);
 
-        Member member = memberPersistencePort.findById(passwordResetToken.memberId())
+        Member member = memberRepository.findById(passwordResetToken.memberId())
                 .orElseThrow(InvalidPasswordResetTokenException::new);
 
         member.changePassword(passwordEncoder.encode(newPassword), LocalDateTime.now());

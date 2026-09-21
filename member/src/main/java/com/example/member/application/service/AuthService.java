@@ -38,7 +38,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final MemberRepository memberPersistencePort;
+    private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenStore refreshTokenStore;
@@ -49,7 +49,7 @@ public class AuthService {
         validateLoginCommand(command);
 
         String email = normalizeRequired(command.email(), "email");
-        Member member = memberPersistencePort.findByEmail(email)
+        Member member = memberRepository.findByEmail(email)
                 .orElseThrow(InvalidLoginException::new);
 
         if (!passwordEncoder.matches(normalizeRequired(command.password(), "password"), member.getPassword())) {
@@ -92,7 +92,7 @@ public class AuthService {
             throw new InvalidTokenException();
         }
 
-        Member member = memberPersistencePort.findById(parsedRefreshToken.memberId())
+        Member member = memberRepository.findById(parsedRefreshToken.memberId())
                 .orElseThrow(InvalidTokenException::new);
         validateActiveMember(member);
 

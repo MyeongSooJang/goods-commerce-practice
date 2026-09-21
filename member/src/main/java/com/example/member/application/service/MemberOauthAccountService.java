@@ -23,12 +23,12 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class MemberOauthAccountService {
 
-    private final MemberRepository memberPersistencePort;
-    private final MemberOauthAccountRepository memberOauthAccountPersistencePort;
+    private final MemberRepository memberRepository;
+    private final MemberOauthAccountRepository memberOauthAccountRepository;
 
     public MemberOauthAccountListResult getCurrentMemberOauthAccounts(UUID memberId) {
         Member member = getMember(memberId);
-        List<MemberOauthAccount> accounts = memberOauthAccountPersistencePort.findAllByMemberId(memberId);
+        List<MemberOauthAccount> accounts = memberOauthAccountRepository.findAllByMemberId(memberId);
         boolean hasPasswordLogin = hasPasswordLogin(member);
         boolean canRemoveLastOauthAccount = hasPasswordLogin || accounts.size() > 1;
         boolean canUnlink = canUnlink(hasPasswordLogin, accounts.size());
@@ -52,20 +52,20 @@ public class MemberOauthAccountService {
     public MemberOauthAccountUnlinkResult unlinkCurrentMemberOauthAccount(UUID memberId, String provider) {
         Member member = getMember(memberId);
         OAuthProvider oauthProvider = parseProvider(provider);
-        MemberOauthAccount account = memberOauthAccountPersistencePort.findByMemberIdAndProvider(memberId, oauthProvider)
+        MemberOauthAccount account = memberOauthAccountRepository.findByMemberIdAndProvider(memberId, oauthProvider)
                 .orElseThrow(MemberOauthAccountNotFoundException::new);
 
-        List<MemberOauthAccount> accounts = memberOauthAccountPersistencePort.findAllByMemberId(memberId);
+        List<MemberOauthAccount> accounts = memberOauthAccountRepository.findAllByMemberId(memberId);
         if (!canUnlink(hasPasswordLogin(member), accounts.size())) {
             throw new LastLoginMethodRemovalNotAllowedException();
         }
 
-        memberOauthAccountPersistencePort.delete(account);
+        memberOauthAccountRepository.delete(account);
         return new MemberOauthAccountUnlinkResult(true, oauthProvider.name());
     }
 
     private Member getMember(UUID memberId) {
-        return memberPersistencePort.findById(memberId)
+        return memberRepository.findById(memberId)
                 .orElseThrow(MemberNotFoundException::new);
     }
 
