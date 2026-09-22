@@ -97,8 +97,8 @@ aws:
   s3:
     bucket: ${AWS_S3_BUCKET:todaylunch-local}
     region: ${AWS_REGION:ap-northeast-2}
-    access-key: ${AWS_ACCESS_KEY_ID}
-    secret-key: ${AWS_SECRET_ACCESS_KEY}
+    access-key: ${AWS_ACCESS_KEY}
+    secret-key: ${AWS_SECRET_KEY}
     profile-image-prefix: members/profile
     put-presign-expiration-seconds: 300
     get-presign-expiration-seconds: 600

@@ -2,6 +2,7 @@ services:
   postgres:
     image: pgvector/pgvector:pg18
     container_name: goods-mall-postgres
+    restart: unless-stopped
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER_NAME}
@@ -20,33 +21,26 @@ services:
       # 스키마 기준은 Flyway로 단일화합니다. seed SQL은 로컬 테스트 시 수동 실행용으로만 사용합니다.
       - ./db-migration/src/main/resources/db/seed/dev_seed_payment_settlement.sql:/opt/seed/dev_seed_payment_settlement.sql:ro
 
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.5.0
-    container_name: goods-mall-zookeeper
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-    ports:
-      - "2181:2181"
-
   kafka:
     image: confluentinc/cp-kafka:7.5.0
     container_name: goods-mall-kafka
-    depends_on:
-      zookeeper:
-        condition: service_started
+    restart: unless-stopped
     ports:
       - "9092:9092"
       - "29092:29092"
     environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:29092,CONTROLLER://0.0.0.0:9093
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
     healthcheck:
       test: ["CMD-SHELL", "cub kafka-ready -b localhost:9092 1 20"]
       interval: 10s
@@ -56,6 +50,7 @@ services:
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
     container_name: goods-mall-kafka-ui
+    restart: unless-stopped
     depends_on:
       kafka:
         condition: service_healthy
@@ -69,6 +64,7 @@ services:
   redis:
     image: redis:7.4-alpine
     container_name: goods-mall-redis
+    restart: unless-stopped
     ports:
       - "6379:6379"
     healthcheck:
@@ -82,12 +78,30 @@ services:
       context: .
       dockerfile: product/docker/elasticsearch/Dockerfile
     container_name: goods-mall-elasticsearch
+    restart: unless-stopped
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
     ports:
       - "9200:9200"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:9.0.0
+    container_name: goods-mall-kibana
+    restart: unless-stopped
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
 
   db-migration:
     build:
@@ -105,7 +119,6 @@ services:
       DB_USER_NAME: ${DB_USER_NAME}
       DB_USER_PASSWORD: ${DB_USER_PASSWORD}
       DB_SEED_ENABLED: "true"
-      DB_SEED_LOCATIONS: classpath:db/seed/dev_seed_member.sql,classpath:db/seed/dev_seed_category.sql,classpath:db/seed/dev_seed_product.sql,classpath:db/seed/dev_seed_cart.sql,classpath:db/seed/dev_seed_wallet.sql,classpath:db/seed/dev_seed_payment_settlement.sql,classpath:db/seed/dev_seed_auction.sql
     restart: "no"
 
   payment:
@@ -113,6 +126,7 @@ services:
       context: .
       dockerfile: payment/Dockerfile
     container_name: goods-mall-payment
+    restart: unless-stopped
     env_file:
       - .env
     depends_on:
@@ -141,6 +155,7 @@ services:
       context: .
       dockerfile: settlement/Dockerfile
     container_name: goods-mall-settlement
+    restart: unless-stopped
     env_file:
       - .env
     depends_on:
@@ -163,6 +178,7 @@ services:
       context: .
       dockerfile: gateway/Dockerfile
     container_name: goods-mall-gateway
+    restart: unless-stopped
     env_file:
       - .env
     environment:
@@ -175,6 +191,7 @@ services:
       context: .
       dockerfile: member/Dockerfile
     container_name: goods-mall-member
+    restart: unless-stopped
     env_file:
       - .env
     depends_on:
@@ -187,7 +204,7 @@ services:
       db-migration:
         condition: service_completed_successfully
     environment:
-      SPRING_PROFILES_ACTIVE: local
+      SPRING_PROFILES_ACTIVE: prod
       DB_URL: ${DB_URL}
       DB_USER_NAME: ${DB_USER_NAME}
       DB_USER_PASSWORD: ${DB_USER_PASSWORD}
@@ -219,10 +236,13 @@ services:
       context: .
       dockerfile: product/Dockerfile
     container_name: goods-mall-product
+    restart: unless-stopped
     env_file:
       - .env
     depends_on:
       postgres:
+        condition: service_healthy
+      elasticsearch:
         condition: service_healthy
       db-migration:
         condition: service_completed_successfully
@@ -233,6 +253,7 @@ services:
       AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
       AWS_SECRET_KEY: ${AWS_SECRET_KEY}
       AWS_S3_BUCKET: ${AWS_S3_BUCKET}
+      ELASTICSEARCH_URI: http://elasticsearch:9200
     ports:
       - "8081:8081"
 
@@ -241,6 +262,7 @@ services:
       context: .
       dockerfile: cart/Dockerfile
     container_name: goods-mall-cart
+    restart: unless-stopped
     env_file:
       - .env
     depends_on:
@@ -260,6 +282,7 @@ services:
       context: .
       dockerfile: order/Dockerfile
     container_name: goods-mall-order
+    restart: unless-stopped
     env_file:
       - .env
     depends_on:
@@ -286,6 +309,7 @@ services:
       context: .
       dockerfile: notification/Dockerfile
     container_name: goods-mall-notification
+    restart: unless-stopped
     env_file:
       - .env
     depends_on:
@@ -308,6 +332,7 @@ services:
       context: .
       dockerfile: auction/Dockerfile
     container_name: goods-mall-auction
+    restart: unless-stopped
     env_file:
       - .env
     depends_on:
@@ -330,6 +355,7 @@ services:
       context: .
       dockerfile: ai/Dockerfile
     container_name: goods-mall-ai
+    restart: unless-stopped
     env_file:
       - .env
     depends_on:
@@ -352,12 +378,42 @@ services:
       AI_PRODUCT_API_PAGE_SIZE: ${AI_PRODUCT_API_PAGE_SIZE:-200}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       AI_EMBEDDING_MODEL: ${AI_EMBEDDING_MODEL:-text-embedding-3-small}
-      EUREKA_DEFAULT_ZONE: ${EUREKA_DEFAULT_ZONE}
-      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "false"
-      EUREKA_INSTANCE_HOSTNAME: ai
-      CONFIG_SERVER_URL: http://config:8888
     ports:
       - "8088:8088"
+
+  tempo:
+    image: grafana/tempo:latest
+    container_name: goods-mall-tempo
+    restart: unless-stopped
+    ports:
+      - "4318:4318"
+      - "3200:3200"
+    volumes:
+      - ./monitoring/tempo.yml:/etc/tempo.yaml
+    command: [ "-config.file=/etc/tempo.yaml" ]
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: goods-mall-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: goods-mall-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - tempo
+      - prometheus
 
 volumes:
   goods_mall_postgres_data:

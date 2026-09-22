@@ -53,7 +53,7 @@ dependencies {
     // password hashing only
     implementation 'org.springframework.security:spring-security-crypto'
     // Eureka Client
-    // Config Server - disabled for Kubernetes-managed configuration.
+    // Config Server - disabled.
     // implementation 'org.springframework.cloud:spring-cloud-starter-config'
     // Config Server retry - disabled with Config Client.
     // implementation 'org.springframework.retry:spring-retry'
