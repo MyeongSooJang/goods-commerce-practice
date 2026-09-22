@@ -3,12 +3,11 @@ package com.example.member.application.service;
 import com.example.member.application.dto.result.MemberOauthAccountItemResult;
 import com.example.member.application.dto.result.MemberOauthAccountListResult;
 import com.example.member.application.dto.result.MemberOauthAccountUnlinkResult;
-import com.example.member.application.port.out.MemberOauthAccountPersistencePort;
-import com.example.member.application.port.out.MemberPersistencePort;
-import com.example.member.application.port.in.MemberOauthAccountUsecase;
-import com.example.member.common.exception.LastLoginMethodRemovalNotAllowedException;
-import com.example.member.common.exception.MemberNotFoundException;
-import com.example.member.common.exception.MemberOauthAccountNotFoundException;
+import com.example.member.domain.repository.MemberOauthAccountRepository;
+import com.example.member.domain.repository.MemberRepository;
+import com.example.member.domain.exception.LastLoginMethodRemovalNotAllowedException;
+import com.example.member.domain.exception.MemberNotFoundException;
+import com.example.member.domain.exception.MemberOauthAccountNotFoundException;
 import com.example.member.domain.entity.Member;
 import com.example.member.domain.entity.MemberOauthAccount;
 import com.example.member.domain.enumtype.OAuthProvider;
@@ -22,15 +21,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class MemberOauthAccountService implements MemberOauthAccountUsecase {
+public class MemberOauthAccountService {
 
-    private final MemberPersistencePort memberPersistencePort;
-    private final MemberOauthAccountPersistencePort memberOauthAccountPersistencePort;
+    private final MemberRepository memberRepository;
+    private final MemberOauthAccountRepository memberOauthAccountRepository;
 
-    @Override
     public MemberOauthAccountListResult getCurrentMemberOauthAccounts(UUID memberId) {
         Member member = getMember(memberId);
-        List<MemberOauthAccount> accounts = memberOauthAccountPersistencePort.findAllByMemberId(memberId);
+        List<MemberOauthAccount> accounts = memberOauthAccountRepository.findAllByMemberId(memberId);
         boolean hasPasswordLogin = hasPasswordLogin(member);
         boolean canRemoveLastOauthAccount = hasPasswordLogin || accounts.size() > 1;
         boolean canUnlink = canUnlink(hasPasswordLogin, accounts.size());
@@ -51,24 +49,23 @@ public class MemberOauthAccountService implements MemberOauthAccountUsecase {
     }
 
     @Transactional
-    @Override
     public MemberOauthAccountUnlinkResult unlinkCurrentMemberOauthAccount(UUID memberId, String provider) {
         Member member = getMember(memberId);
         OAuthProvider oauthProvider = parseProvider(provider);
-        MemberOauthAccount account = memberOauthAccountPersistencePort.findByMemberIdAndProvider(memberId, oauthProvider)
+        MemberOauthAccount account = memberOauthAccountRepository.findByMemberIdAndProvider(memberId, oauthProvider)
                 .orElseThrow(MemberOauthAccountNotFoundException::new);
 
-        List<MemberOauthAccount> accounts = memberOauthAccountPersistencePort.findAllByMemberId(memberId);
+        List<MemberOauthAccount> accounts = memberOauthAccountRepository.findAllByMemberId(memberId);
         if (!canUnlink(hasPasswordLogin(member), accounts.size())) {
             throw new LastLoginMethodRemovalNotAllowedException();
         }
 
-        memberOauthAccountPersistencePort.delete(account);
+        memberOauthAccountRepository.delete(account);
         return new MemberOauthAccountUnlinkResult(true, oauthProvider.name());
     }
 
     private Member getMember(UUID memberId) {
-        return memberPersistencePort.findById(memberId)
+        return memberRepository.findById(memberId)
                 .orElseThrow(MemberNotFoundException::new);
     }
 

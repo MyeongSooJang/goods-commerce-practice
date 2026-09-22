@@ -1,7 +1,7 @@
 package com.example.product.infrastructure.config;
 
 import com.example.product.infrastructure.messaging.kafka.KafkaConsumerGroups;
-import com.todaylunch.common.messaging.kafka.KafkaConsumerProps;
+import com.example.common.messaging.kafka.KafkaConsumerProps;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

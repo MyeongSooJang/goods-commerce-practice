@@ -7,7 +7,7 @@ import com.todaylunch.auction.domain.repository.AuctionRepository;
 import com.todaylunch.auction.domain.repository.BidRepository;
 import com.todaylunch.auction.infrastructure.messaging.kafka.KafkaTopics;
 import com.todaylunch.auction.infrastructure.messaging.kafka.message.BidFeeChargeFailedMessage;
-import com.todaylunch.common.event.contract.EventEnvelope;
+import com.example.common.event.contract.EventEnvelope;
 import java.math.BigDecimal;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;

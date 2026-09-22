@@ -10,15 +10,15 @@ import static org.mockito.Mockito.when;
 
 import com.example.member.application.dto.command.PasswordResetConfirmCommand;
 import com.example.member.application.dto.command.PasswordResetSendCommand;
-import com.example.member.common.exception.InvalidPasswordResetTokenException;
+import com.example.member.domain.exception.InvalidPasswordResetTokenException;
 import com.example.member.config.PasswordResetProperties;
 import com.example.member.domain.entity.Member;
 import com.example.member.domain.enumtype.MemberStatus;
 import com.example.member.infrastructure.email.EmailSender;
-import com.example.member.infrastructure.persistence.jpa.MemberJpaAdapter;
+import com.example.member.domain.repository.MemberRepository;
 import com.example.member.infrastructure.redis.passwordreset.PasswordResetToken;
 import com.example.member.infrastructure.redis.passwordreset.PasswordResetTokenStore;
-import com.todaylunch.common.security.auth.enumtype.MemberRole;
+import com.example.common.security.auth.enumtype.MemberRole;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -36,7 +36,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 class PasswordResetServiceTest {
 
     @Mock
-    private MemberJpaAdapter memberPersistencePort;
+    private MemberRepository memberPersistencePort;
 
     @Mock
     private PasswordResetTokenStore passwordResetTokenStore;

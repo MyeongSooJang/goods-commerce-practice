@@ -37,7 +37,7 @@ import com.example.notification.infrastructure.messaging.kafka.handler.OrderCrea
 import com.example.notification.infrastructure.messaging.kafka.handler.OrderCanceledNotificationEventHandler;
 import com.example.notification.infrastructure.messaging.kafka.handler.OrderPaymentResultNotificationEventHandler;
 import com.example.notification.infrastructure.messaging.kafka.handler.SellerSettlementPayoutResultNotificationEventHandler;
-import com.todaylunch.common.event.contract.EventEnvelope;
+import com.example.common.event.contract.EventEnvelope;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import java.math.BigDecimal;

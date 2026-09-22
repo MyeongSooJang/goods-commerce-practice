@@ -14,7 +14,7 @@ import com.todaylunch.auction.infrastructure.messaging.kafka.KafkaTopics;
 import com.todaylunch.auction.infrastructure.messaging.kafka.message.AuctionWonPayload;
 import com.todaylunch.auction.infrastructure.messaging.kafka.publisher.KafkaAuctionClosedSoldEventPublisher;
 import com.todaylunch.auction.infrastructure.messaging.kafka.publisher.KafkaAuctionClosedUnsoldEventPublisher;
-import com.todaylunch.common.event.contract.EventEnvelope;
+import com.example.common.event.contract.EventEnvelope;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;

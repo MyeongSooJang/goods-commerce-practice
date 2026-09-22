@@ -5,7 +5,7 @@ import com.example.settlement.application.usecase.MonthlySettlementUseCase;
 import com.example.settlement.infrastructure.messaging.kafka.exception.SettlementKafkaProcessingException;
 import com.example.settlement.infrastructure.messaging.kafka.exception.SettlementKafkaValidationException;
 import com.example.settlement.infrastructure.messaging.kafka.contract.SettlementCandidateCreatedMessage;
-import com.todaylunch.common.event.contract.EventEnvelope;
+import com.example.common.event.contract.EventEnvelope;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import lombok.extern.slf4j.Slf4j;

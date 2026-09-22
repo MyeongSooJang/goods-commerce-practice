@@ -4,7 +4,7 @@ import com.example.settlement.application.usecase.SettlementPayoutUseCase;
 import com.example.settlement.infrastructure.messaging.kafka.contract.SellerSettlementPayoutResultMessage;
 import com.example.settlement.infrastructure.messaging.kafka.exception.SettlementKafkaProcessingException;
 import com.example.settlement.infrastructure.messaging.kafka.exception.SettlementKafkaValidationException;
-import com.todaylunch.common.event.contract.EventEnvelope;
+import com.example.common.event.contract.EventEnvelope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;

@@ -5,7 +5,6 @@ import com.example.member.application.event.AccountVerificationFailedEvent;
 import com.example.member.application.event.MemberOauthLinkedEvent;
 import com.example.member.application.event.MemberSignedUpEvent;
 import com.example.member.application.event.SellerPromotedEvent;
-import com.example.member.application.port.out.MemberEventPort;
 import com.example.member.domain.entity.Member;
 import com.example.member.domain.entity.Seller;
 import java.time.LocalDateTime;
@@ -16,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class SpringMemberEventPublisher implements MemberEventPort {
+public class SpringMemberEventPublisher implements MemberEventPublisher {
 
     private final ApplicationEventPublisher applicationEventPublisher;
 

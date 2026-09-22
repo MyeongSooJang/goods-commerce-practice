@@ -13,21 +13,21 @@ import com.example.member.application.dto.command.LoginCommand;
 import com.example.member.application.dto.command.TokenRefreshCommand;
 import com.example.member.application.dto.result.AuthSessionListResult;
 import com.example.member.application.dto.result.AuthTokenResult;
-import com.example.member.common.exception.InvalidLoginException;
-import com.example.member.common.exception.MemberRestrictedException;
-import com.example.member.common.exception.MemberWithdrawnException;
+import com.example.member.domain.exception.InvalidLoginException;
+import com.example.member.domain.exception.MemberRestrictedException;
+import com.example.member.domain.exception.MemberWithdrawnException;
 import com.example.member.domain.entity.Member;
 import com.example.member.domain.entity.MemberRestriction;
 import com.example.member.domain.enumtype.MemberStatus;
 import com.example.member.domain.enumtype.RestrictionType;
-import com.example.member.infrastructure.persistence.jpa.MemberJpaAdapter;
+import com.example.member.domain.repository.MemberRepository;
 import com.example.member.infrastructure.redis.auth.AuthSession;
 import com.example.member.infrastructure.redis.auth.ParsedRefreshToken;
 import com.example.member.infrastructure.redis.auth.RefreshTokenStore;
 import com.example.member.infrastructure.redis.auth.TokenBlacklistStore;
-import com.example.member.infrastructure.security.jwt.JwtTokenProvider;
-import com.todaylunch.common.security.auth.enumtype.MemberRole;
-import com.todaylunch.common.security.exception.InvalidTokenException;
+import com.example.member.infrastructure.jwt.JwtTokenProvider;
+import com.example.common.security.auth.enumtype.MemberRole;
+import com.example.common.security.exception.InvalidTokenException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -45,7 +45,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 class AuthServiceTest {
 
     @Mock
-    private MemberJpaAdapter memberPersistencePort;
+    private MemberRepository memberPersistencePort;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -138,7 +138,7 @@ class AuthServiceTest {
         when(memberPersistencePort.findByEmail("member@test.com")).thenReturn(Optional.of(member));
         when(passwordEncoder.matches("plain-password", "encoded-password")).thenReturn(true);
 
-        assertThrows(com.example.member.common.exception.EmailVerificationRequiredException.class, () -> authService.login(command, AuthSessionMetadata.empty()));
+        assertThrows(com.example.member.domain.exception.EmailVerificationRequiredException.class, () -> authService.login(command, AuthSessionMetadata.empty()));
 
         verify(jwtTokenProvider, never()).createAccessToken(eq(member), any(UUID.class));
         verify(refreshTokenStore, never()).createSession(any(UUID.class), any(UUID.class), any(String.class), any(Duration.class), any(AuthSessionMetadata.class));

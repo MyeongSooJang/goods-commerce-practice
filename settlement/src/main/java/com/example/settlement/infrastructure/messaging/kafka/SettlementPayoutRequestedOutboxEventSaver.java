@@ -4,7 +4,7 @@ import com.example.settlement.application.event.OutboxEventPendingTrigger;
 import com.example.settlement.domain.entity.OutboxEvent;
 import com.example.settlement.domain.repository.OutboxRepository;
 import com.example.settlement.infrastructure.messaging.kafka.contract.SellerSettlementPayoutRequestedMessage;
-import com.todaylunch.common.event.contract.EventEnvelope;
+import com.example.common.event.contract.EventEnvelope;
 import java.time.ZoneId;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;

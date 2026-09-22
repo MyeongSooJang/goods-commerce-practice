@@ -14,21 +14,20 @@ import com.example.member.application.dto.command.WithdrawMemberCommand;
 import com.example.member.application.dto.result.CreateMemberResult;
 import com.example.member.application.dto.result.MemberResult;
 import com.example.member.application.dto.result.WithdrawMemberResult;
-import com.example.member.application.port.in.AuthUsecase;
-import com.example.member.application.port.out.MemberEventPort;
-import com.example.member.application.port.out.MemberOauthAccountPersistencePort;
-import com.example.member.application.port.out.MemberPersistencePort;
-import com.example.member.application.port.out.ProfileImageUrlPort;
-import com.example.member.application.port.out.MemberWithdrawalCheckPort;
-import com.example.member.common.exception.DuplicateMemberEmailException;
-import com.example.member.common.exception.InvalidCurrentPasswordException;
-import com.example.member.common.exception.MemberWithdrawalException;
+import com.example.member.domain.repository.MemberOauthAccountRepository;
+import com.example.member.domain.repository.MemberRepository;
+import com.example.member.infrastructure.client.MemberWithdrawalCheckFeignAdapter;
+import com.example.member.infrastructure.messaging.MemberEventPublisher;
+import com.example.member.infrastructure.storage.s3.ProfileImageUrlResolver;
+import com.example.member.domain.exception.DuplicateMemberEmailException;
+import com.example.member.domain.exception.InvalidCurrentPasswordException;
+import com.example.member.domain.exception.MemberWithdrawalException;
 import com.example.member.config.MemberSignupProperties;
 import com.example.member.domain.entity.Member;
 import com.example.member.domain.entity.MemberOauthAccount;
 import com.example.member.domain.enumtype.OAuthProvider;
 import com.example.member.domain.enumtype.MemberStatus;
-import com.todaylunch.common.security.auth.enumtype.MemberRole;
+import com.example.common.security.auth.enumtype.MemberRole;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -45,16 +44,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 class MemberServiceTest {
 
     @Mock
-    private MemberPersistencePort memberPersistencePort;
+    private MemberRepository memberPersistencePort;
 
     @Mock
     private PasswordEncoder passwordEncoder;
 
     @Mock
-    private MemberEventPort memberEventPort;
+    private MemberEventPublisher memberEventPort;
 
     @Mock
-    private ProfileImageUrlPort profileImageUrlPort;
+    private ProfileImageUrlResolver profileImageUrlPort;
 
     @Mock
     private EmailVerificationService emailVerificationService;
@@ -66,13 +65,13 @@ class MemberServiceTest {
     private MemberSignupProperties memberSignupProperties;
 
     @Mock
-    private AuthUsecase authUsecase;
+    private AuthService authService;
 
     @Mock
-    private MemberWithdrawalCheckPort memberWithdrawalCheckPort;
+    private MemberWithdrawalCheckFeignAdapter memberWithdrawalCheckPort;
 
     @Mock
-    private MemberOauthAccountPersistencePort memberOauthAccountPersistencePort;
+    private MemberOauthAccountRepository memberOauthAccountPersistencePort;
 
     @InjectMocks
     private MemberService memberService;
@@ -379,7 +378,7 @@ class MemberServiceTest {
         assertEquals(MemberStatus.WITHDRAWN, result.status());
         verify(memberWithdrawalCheckPort).validateWithdrawable(member, "Bearer access-token");
         verify(memberOauthAccountPersistencePort).delete(oauthAccount);
-        verify(authUsecase).logoutAllSessions("Bearer access-token");
+        verify(authService).logoutAllSessions("Bearer access-token");
     }
 
     @Test
@@ -412,7 +411,7 @@ class MemberServiceTest {
         );
         assertEquals("MEMBER_WITHDRAWAL_ADMIN_FORBIDDEN", exception.getCode());
         verify(memberWithdrawalCheckPort, never()).validateWithdrawable(any(), any());
-        verify(authUsecase, never()).logoutAllSessions(any());
+        verify(authService, never()).logoutAllSessions(any());
     }
 
     @Test
@@ -446,7 +445,7 @@ class MemberServiceTest {
         );
         assertEquals("MEMBER_WITHDRAWAL_PASSWORD_INVALID", exception.getCode());
         verify(memberWithdrawalCheckPort).validateWithdrawable(member, "Bearer access-token");
-        verify(authUsecase, never()).logoutAllSessions(any());
+        verify(authService, never()).logoutAllSessions(any());
     }
 
     @Test
@@ -479,6 +478,6 @@ class MemberServiceTest {
         );
         assertEquals("MEMBER_WITHDRAWAL_NOT_ACTIVE", exception.getCode());
         verify(memberWithdrawalCheckPort, never()).validateWithdrawable(any(), any());
-        verify(authUsecase, never()).logoutAllSessions(any());
+        verify(authService, never()).logoutAllSessions(any());
     }
 }

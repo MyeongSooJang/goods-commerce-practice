@@ -1,6 +1,5 @@
 package com.example.member.infrastructure.redis.emailverification;
 
-import com.example.member.application.port.out.EmailVerificationAutoLoginTokenStore;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
@@ -11,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class RedisEmailVerificationAutoLoginTokenStore implements EmailVerificationAutoLoginTokenStore {
+public class RedisEmailVerificationAutoLoginTokenStore {
 
     private static final String KEY_PREFIX = "auth:email-verification:auto-login:";
     private static final String FIELD_MEMBER_ID = "memberId";
@@ -19,7 +18,6 @@ public class RedisEmailVerificationAutoLoginTokenStore implements EmailVerificat
 
     private final StringRedisTemplate stringRedisTemplate;
 
-    @Override
     public Optional<String> create(EmailVerificationAutoLoginToken token, Duration ttl) {
         String key = buildKey(token.token());
         stringRedisTemplate.opsForHash().put(key, FIELD_MEMBER_ID, token.memberId().toString());
@@ -28,7 +26,6 @@ public class RedisEmailVerificationAutoLoginTokenStore implements EmailVerificat
         return Optional.of(token.token());
     }
 
-    @Override
     public Optional<EmailVerificationAutoLoginToken> consume(String token) {
         String key = buildKey(token);
         var entries = stringRedisTemplate.opsForHash().entries(key);

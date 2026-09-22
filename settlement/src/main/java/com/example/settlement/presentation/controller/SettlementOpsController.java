@@ -7,8 +7,8 @@ import com.example.settlement.presentation.dto.request.ManualFailedPayoutRequest
 import com.example.settlement.presentation.dto.response.ApiResponse;
 import com.example.settlement.presentation.dto.response.FailedPayoutReplayResponse;
 import com.example.settlement.presentation.dto.response.ManualFailedPayoutResponse;
-import com.todaylunch.common.security.auth.annotation.CurrentMember;
-import com.todaylunch.common.security.auth.dto.AuthenticatedMember;
+import com.example.common.security.auth.annotation.CurrentMember;
+import com.example.common.security.auth.dto.AuthenticatedMember;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.ArrayList;

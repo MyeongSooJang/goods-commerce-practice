@@ -11,7 +11,7 @@ import com.example.payment.domain.service.TimeProvider;
 import com.example.payment.infrastructure.messaging.kafka.contract.BidFeeChargeFailedMessage;
 import com.example.payment.infrastructure.messaging.kafka.contract.BidFeeChargeRequestMessage;
 import com.example.payment.infrastructure.messaging.kafka.contract.BidFeeChargeSucceededMessage;
-import com.todaylunch.common.event.contract.EventEnvelope;
+import com.example.common.event.contract.EventEnvelope;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;

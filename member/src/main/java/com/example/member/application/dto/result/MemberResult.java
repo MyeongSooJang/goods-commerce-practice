@@ -1,7 +1,7 @@
 package com.example.member.application.dto.result;
 
 import com.example.member.domain.enumtype.MemberStatus;
-import com.todaylunch.common.security.auth.enumtype.MemberRole;
+import com.example.common.security.auth.enumtype.MemberRole;
 import java.time.LocalDateTime;
 import java.util.UUID;
 

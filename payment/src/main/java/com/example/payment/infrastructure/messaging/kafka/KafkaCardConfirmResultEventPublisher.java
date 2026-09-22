@@ -2,7 +2,7 @@ package com.example.payment.infrastructure.messaging.kafka;
 
 import com.example.payment.domain.service.CardConfirmResultEventPublisher;
 import com.example.payment.infrastructure.messaging.kafka.contract.CardConfirmResultMessage;
-import com.todaylunch.common.event.contract.EventEnvelope;
+import com.example.common.event.contract.EventEnvelope;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;

@@ -4,7 +4,7 @@ import com.example.payment.application.dto.CreateWalletCommand;
 import com.example.payment.application.usecase.CreateWalletUseCase;
 import com.example.payment.common.exception.InvalidChargeRequestException;
 import com.example.payment.infrastructure.messaging.kafka.contract.MemberSignedUpPayload;
-import com.todaylunch.common.event.contract.EventEnvelope;
+import com.example.common.event.contract.EventEnvelope;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Objects;

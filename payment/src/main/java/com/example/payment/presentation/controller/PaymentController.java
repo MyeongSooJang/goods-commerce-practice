@@ -1,8 +1,8 @@
 package com.example.payment.presentation.controller;
 
-import com.todaylunch.common.security.auth.annotation.CurrentMember;
-import com.todaylunch.common.security.auth.dto.AuthenticatedMember;
-import com.todaylunch.common.security.auth.enumtype.MemberRole;
+import com.example.common.security.auth.annotation.CurrentMember;
+import com.example.common.security.auth.dto.AuthenticatedMember;
+import com.example.common.security.auth.enumtype.MemberRole;
 import com.example.payment.application.dto.CardPaymentConfirmCommand;
 import com.example.payment.application.dto.ChargeConfirmCommand;
 import com.example.payment.application.dto.ChargeConfirmFailureCommand;

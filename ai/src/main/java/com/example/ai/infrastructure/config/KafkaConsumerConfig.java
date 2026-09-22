@@ -4,7 +4,7 @@ import com.example.ai.infrastructure.messaging.kafka.InvalidProductEventPayloadE
 import com.example.ai.infrastructure.messaging.kafka.KafkaConsumerGroups;
 import com.example.ai.infrastructure.messaging.kafka.ProductEventParseException;
 import com.example.ai.infrastructure.messaging.kafka.dlq.ProductEventDlqPublisher;
-import com.todaylunch.common.messaging.kafka.KafkaConsumerProps;
+import com.example.common.messaging.kafka.KafkaConsumerProps;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

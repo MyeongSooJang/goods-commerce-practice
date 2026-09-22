@@ -9,22 +9,20 @@ import com.example.member.application.dto.result.ChangePasswordResult;
 import com.example.member.application.dto.result.CreateMemberResult;
 import com.example.member.application.dto.result.MemberResult;
 import com.example.member.application.dto.result.WithdrawMemberResult;
-import com.example.member.application.port.in.AuthUsecase;
-import com.example.member.application.port.in.MemberUsecase;
-import com.example.member.application.port.out.MemberWithdrawalCheckPort;
-import com.example.member.application.port.out.MemberEventPort;
-import com.example.member.application.port.out.MemberOauthAccountPersistencePort;
-import com.example.member.application.port.out.MemberPersistencePort;
-import com.example.member.application.port.out.ProfileImageUrlPort;
-import com.example.member.common.exception.DuplicateMemberEmailException;
-import com.example.member.common.exception.InvalidCurrentPasswordException;
-import com.example.member.common.exception.MemberWithdrawalException;
-import com.example.member.common.exception.MemberNotFoundException;
+import com.example.member.domain.repository.MemberOauthAccountRepository;
+import com.example.member.domain.repository.MemberRepository;
+import com.example.member.infrastructure.client.MemberWithdrawalCheckFeignAdapter;
+import com.example.member.infrastructure.messaging.MemberEventPublisher;
+import com.example.member.infrastructure.storage.s3.ProfileImageUrlResolver;
+import com.example.member.domain.exception.DuplicateMemberEmailException;
+import com.example.member.domain.exception.InvalidCurrentPasswordException;
+import com.example.member.domain.exception.MemberWithdrawalException;
+import com.example.member.domain.exception.MemberNotFoundException;
 import com.example.member.config.MemberSignupProperties;
 import com.example.member.domain.entity.Member;
 import com.example.member.domain.entity.MemberOauthAccount;
 import com.example.member.domain.enumtype.MemberStatus;
-import com.todaylunch.common.security.auth.enumtype.MemberRole;
+import com.example.common.security.auth.enumtype.MemberRole;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -37,26 +35,25 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class MemberService implements MemberUsecase {
+public class MemberService {
 
-    private final MemberPersistencePort memberPersistencePort;
+    private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
-    private final MemberEventPort memberEventPort;
-    private final MemberWithdrawalCheckPort memberWithdrawalCheckPort;
-    private final MemberOauthAccountPersistencePort memberOauthAccountPersistencePort;
-    private final ProfileImageUrlPort profileImageUrlPort;
+    private final MemberEventPublisher memberEventPort;
+    private final MemberWithdrawalCheckFeignAdapter memberWithdrawalCheckPort;
+    private final MemberOauthAccountRepository memberOauthAccountRepository;
+    private final ProfileImageUrlResolver profileImageUrlPort;
     private final EmailVerificationService emailVerificationService;
     private final KakaoOAuthService kakaoOAuthService;
     private final MemberSignupProperties memberSignupProperties;
-    private final AuthUsecase authUsecase;
+    private final AuthService authService;
 
     @Transactional
-    @Override
     public CreateMemberResult createMember(CreateMemberCommand command) {
         validateCreateCommand(command);
 
         String email = normalizeRequired(command.email(), "email");
-        if (memberPersistencePort.existsByEmail(email)) {
+        if (memberRepository.existsByEmail(email)) {
             throw new DuplicateMemberEmailException();
         }
 
@@ -79,7 +76,7 @@ public class MemberService implements MemberUsecase {
                 now
         );
 
-        Member savedMember = memberPersistencePort.save(member);
+        Member savedMember = memberRepository.save(member);
         linkPendingKakaoAccountIfPresent(savedMember.getMemberId(), command.kakaoLinkToken());
         if (memberSignupProperties.requireEmailVerification()) {
             emailVerificationService.createSignupVerification(savedMember);
@@ -89,20 +86,17 @@ public class MemberService implements MemberUsecase {
         return toCreateMemberResult(savedMember);
     }
 
-    @Override
     public MemberResult getMember(GetMemberQuery query) {
         validateGetMemberQuery(query);
         return toMemberResult(getMemberEntity(query.memberId()));
     }
 
-    @Override
     public MemberResult getCurrentMember(GetMemberQuery query) {
         validateGetMemberQuery(query);
         return toMemberResult(getMemberEntity(query.memberId()));
     }
 
     @Transactional
-    @Override
     public MemberResult updateMember(UpdateMemberCommand command) {
         validateUpdateCommand(command);
 
@@ -124,14 +118,12 @@ public class MemberService implements MemberUsecase {
     }
 
     @Transactional
-    @Override
     public MemberResult updateCurrentMember(UpdateMemberCommand command) {
         validateUpdateCommand(command);
         return updateMember(command);
     }
 
     @Transactional
-    @Override
     public ChangePasswordResult changeCurrentMemberPassword(ChangePasswordCommand command) {
         validateChangePasswordCommand(command);
 
@@ -151,7 +143,6 @@ public class MemberService implements MemberUsecase {
     }
 
     @Transactional
-    @Override
     public WithdrawMemberResult withdrawCurrentMember(WithdrawMemberCommand command) {
         validateWithdrawCommand(command);
 
@@ -174,7 +165,7 @@ public class MemberService implements MemberUsecase {
         LocalDateTime withdrawnAt = LocalDateTime.now();
         deleteOauthAccounts(member.getMemberId());
         member.withdraw(createWithdrawnEmail(member), withdrawnAt);
-        authUsecase.logoutAllSessions(normalizeRequired(command.authorizationHeader(), "authorizationHeader"));
+        authService.logoutAllSessions(normalizeRequired(command.authorizationHeader(), "authorizationHeader"));
 
         return new WithdrawMemberResult(
                 member.getMemberId(),
@@ -185,7 +176,7 @@ public class MemberService implements MemberUsecase {
     }
 
     private Member getMemberEntity(UUID memberId) {
-        return memberPersistencePort.findById(memberId)
+        return memberRepository.findById(memberId)
                 .orElseThrow(MemberNotFoundException::new);
     }
 
@@ -288,8 +279,8 @@ public class MemberService implements MemberUsecase {
     }
 
     private void deleteOauthAccounts(UUID memberId) {
-        List<MemberOauthAccount> oauthAccounts = memberOauthAccountPersistencePort.findAllByMemberId(memberId);
-        oauthAccounts.forEach(memberOauthAccountPersistencePort::delete);
+        List<MemberOauthAccount> oauthAccounts = memberOauthAccountRepository.findAllByMemberId(memberId);
+        oauthAccounts.forEach(memberOauthAccountRepository::delete);
     }
 
     private void linkPendingKakaoAccountIfPresent(UUID memberId, String kakaoLinkToken) {

@@ -11,19 +11,19 @@ import com.example.member.application.dto.command.CreateMemberReportCommand;
 import com.example.member.application.dto.command.CreateMemberRestrictionCommand;
 import com.example.member.application.dto.command.ReviewMemberReportCommand;
 import com.example.member.application.dto.result.MemberReportResult;
-import com.example.member.common.exception.DuplicateMemberReportException;
-import com.example.member.common.exception.MemberReportNotFoundException;
-import com.example.member.common.exception.SelfReportNotAllowedException;
+import com.example.member.domain.exception.DuplicateMemberReportException;
+import com.example.member.domain.exception.MemberReportNotFoundException;
+import com.example.member.domain.exception.SelfReportNotAllowedException;
 import com.example.member.domain.entity.Member;
 import com.example.member.domain.entity.MemberReport;
 import com.example.member.domain.enumtype.MemberStatus;
 import com.example.member.domain.enumtype.ReportStatus;
 import com.example.member.domain.enumtype.ReportType;
 import com.example.member.domain.enumtype.RestrictionType;
-import com.example.member.infrastructure.persistence.jpa.MemberJpaAdapter;
-import com.example.member.infrastructure.persistence.jpa.MemberReportJpaAdapter;
-import com.todaylunch.common.security.auth.dto.AuthenticatedMember;
-import com.todaylunch.common.security.auth.enumtype.MemberRole;
+import com.example.member.domain.repository.MemberRepository;
+import com.example.member.domain.repository.MemberReportRepository;
+import com.example.common.security.auth.dto.AuthenticatedMember;
+import com.example.common.security.auth.enumtype.MemberRole;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -38,10 +38,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class MemberReportServiceTest {
 
     @Mock
-    private MemberJpaAdapter memberPersistencePort;
+    private MemberRepository memberPersistencePort;
 
     @Mock
-    private MemberReportJpaAdapter memberReportPersistencePort;
+    private MemberReportRepository memberReportPersistencePort;
 
     @Mock
     private MemberRestrictionService memberRestrictionService;

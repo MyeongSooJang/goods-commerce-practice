@@ -2,17 +2,16 @@ package com.example.member.application.service;
 
 import com.example.member.application.dto.command.CreateMemberRestrictionCommand;
 import com.example.member.application.dto.result.MemberRestrictionResult;
-import com.example.member.application.port.out.MemberPersistencePort;
-import com.example.member.application.port.out.MemberRestrictionPersistencePort;
-import com.example.member.application.port.in.MemberRestrictionUsecase;
-import com.example.member.common.exception.DuplicateActiveRestrictionException;
-import com.example.member.common.exception.MemberNotFoundException;
-import com.example.member.common.exception.MemberRestrictionNotFoundException;
+import com.example.member.domain.repository.MemberRepository;
+import com.example.member.domain.repository.MemberRestrictionRepository;
+import com.example.member.domain.exception.DuplicateActiveRestrictionException;
+import com.example.member.domain.exception.MemberNotFoundException;
+import com.example.member.domain.exception.MemberRestrictionNotFoundException;
 import com.example.member.domain.entity.Member;
 import com.example.member.domain.entity.MemberRestriction;
 import com.example.member.domain.enumtype.RestrictionType;
-import com.todaylunch.common.security.auth.dto.AuthenticatedMember;
-import com.todaylunch.common.security.auth.util.RoleGuard;
+import com.example.common.security.auth.dto.AuthenticatedMember;
+import com.example.common.security.auth.util.RoleGuard;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -26,13 +25,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class MemberRestrictionService implements MemberRestrictionUsecase {
+public class MemberRestrictionService {
 
-    private final MemberPersistencePort memberPersistencePort;
-    private final MemberRestrictionPersistencePort memberRestrictionPersistencePort;
+    private final MemberRepository memberRepository;
+    private final MemberRestrictionRepository memberRestrictionRepository;
 
     @Transactional
-    @Override
     public MemberRestrictionResult createRestriction(
             AuthenticatedMember authenticatedMember,
             CreateMemberRestrictionCommand command
@@ -41,11 +39,11 @@ public class MemberRestrictionService implements MemberRestrictionUsecase {
         validateCreateCommand(command);
 
         UUID memberId = command.memberId();
-        memberPersistencePort.findById(memberId).orElseThrow(MemberNotFoundException::new);
+        memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
 
         LocalDateTime now = LocalDateTime.now();
         RestrictionType restrictionType = command.restrictionType();
-        if (memberRestrictionPersistencePort.existsActiveRestriction(memberId, restrictionType, now)) {
+        if (memberRestrictionRepository.existsActiveRestriction(memberId, restrictionType, now)) {
             throw new DuplicateActiveRestrictionException();
         }
 
@@ -59,18 +57,17 @@ public class MemberRestrictionService implements MemberRestrictionUsecase {
                 now
         );
 
-        return toResult(memberRestrictionPersistencePort.save(memberRestriction));
+        return toResult(memberRestrictionRepository.save(memberRestriction));
     }
 
     @Transactional
-    @Override
     public MemberRestrictionResult deactivateRestriction(
             AuthenticatedMember authenticatedMember,
             UUID restrictionId
     ) {
         RoleGuard.requireAdmin(authenticatedMember);
 
-        MemberRestriction memberRestriction = memberRestrictionPersistencePort.findById(restrictionId)
+        MemberRestriction memberRestriction = memberRestrictionRepository.findById(restrictionId)
                 .orElseThrow(MemberRestrictionNotFoundException::new);
 
         LocalDateTime now = LocalDateTime.now();
@@ -78,11 +75,10 @@ public class MemberRestrictionService implements MemberRestrictionUsecase {
         return toResult(memberRestriction);
     }
 
-    @Override
     public List<MemberRestrictionResult> getAllMemberRestrictions(AuthenticatedMember authenticatedMember) {
         RoleGuard.requireAdmin(authenticatedMember);
 
-        List<MemberRestriction> restrictions = memberRestrictionPersistencePort.findAll();
+        List<MemberRestriction> restrictions = memberRestrictionRepository.findAll();
         Map<UUID, String> nicknamesById = resolveNicknames(restrictions);
 
         return restrictions.stream()
@@ -90,15 +86,14 @@ public class MemberRestrictionService implements MemberRestrictionUsecase {
                 .toList();
     }
 
-    @Override
     public List<MemberRestrictionResult> getMemberRestrictions(
             AuthenticatedMember authenticatedMember,
             UUID memberId
     ) {
         RoleGuard.requireAdmin(authenticatedMember);
-        memberPersistencePort.findById(memberId).orElseThrow(MemberNotFoundException::new);
+        memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
 
-        List<MemberRestriction> restrictions = memberRestrictionPersistencePort.findAllByMemberId(memberId);
+        List<MemberRestriction> restrictions = memberRestrictionRepository.findAllByMemberId(memberId);
         Map<UUID, String> nicknamesById = resolveNicknames(restrictions);
 
         return restrictions.stream()
@@ -107,7 +102,7 @@ public class MemberRestrictionService implements MemberRestrictionUsecase {
     }
 
     public MemberRestriction getActiveLoginRestriction(UUID memberId, LocalDateTime now) {
-        return memberRestrictionPersistencePort.findActiveRestriction(memberId, RestrictionType.LOGIN_BAN, now)
+        return memberRestrictionRepository.findActiveRestriction(memberId, RestrictionType.LOGIN_BAN, now)
                 .orElse(null);
     }
 
@@ -156,7 +151,7 @@ public class MemberRestrictionService implements MemberRestrictionUsecase {
             }
         }
 
-        return memberPersistencePort.findAllByIds(memberIds).stream()
+        return memberRepository.findAllByIds(memberIds).stream()
                 .collect(Collectors.toMap(Member::getMemberId, Member::getNickname, (left, right) -> left));
     }
 }

@@ -3,7 +3,7 @@ package com.todaylunch.auction.infrastructure.messaging.kafka.publisher;
 import com.todaylunch.auction.infrastructure.messaging.kafka.AuctionEventTypes;
 import com.todaylunch.auction.infrastructure.messaging.kafka.KafkaTopics;
 import com.todaylunch.auction.infrastructure.messaging.kafka.message.AuctionClosedSoldPayload;
-import com.todaylunch.common.event.contract.EventEnvelope;
+import com.example.common.event.contract.EventEnvelope;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;

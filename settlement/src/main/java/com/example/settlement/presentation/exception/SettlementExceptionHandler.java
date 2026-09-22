@@ -2,7 +2,7 @@ package com.example.settlement.presentation.exception;
 
 import com.example.settlement.common.exception.CustomException;
 import com.example.settlement.presentation.dto.response.ApiResponse;
-import com.todaylunch.common.security.exception.InvalidTokenException;
+import com.example.common.security.exception.InvalidTokenException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

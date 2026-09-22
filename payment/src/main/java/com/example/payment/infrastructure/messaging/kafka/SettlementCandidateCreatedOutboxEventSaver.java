@@ -5,7 +5,7 @@ import com.example.payment.application.event.SettlementCandidateCreatedEvent;
 import com.example.payment.domain.entity.OutboxEvent;
 import com.example.payment.domain.repository.OutboxRepository;
 import com.example.payment.infrastructure.messaging.kafka.contract.SettlementCandidateCreatedMessage;
-import com.todaylunch.common.event.contract.EventEnvelope;
+import com.example.common.event.contract.EventEnvelope;
 import java.time.ZoneId;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;

@@ -2,7 +2,7 @@ package com.example.payment.infrastructure.messaging.kafka;
 
 import com.example.payment.application.usecase.AuctionDepositRefundUseCase;
 import com.example.payment.infrastructure.messaging.kafka.contract.BidFeeRefundRequestedMessage;
-import com.todaylunch.common.event.contract.EventEnvelope;
+import com.example.common.event.contract.EventEnvelope;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;

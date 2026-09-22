@@ -3,7 +3,7 @@ package com.example.order.infrastructure.kafka.consumer;
 import com.example.order.application.service.OrderAuctionCreateService;
 import com.example.order.infrastructure.kafka.KafkaTopics;
 import com.example.order.infrastructure.kafka.event.AuctionWonEvent;
-import com.todaylunch.common.event.contract.EventEnvelope;
+import com.example.common.event.contract.EventEnvelope;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;

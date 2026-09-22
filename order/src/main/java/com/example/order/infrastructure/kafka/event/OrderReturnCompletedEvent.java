@@ -4,7 +4,7 @@ import com.example.order.domain.entity.Order;
 import com.example.order.domain.entity.OrderItem;
 import com.example.order.domain.entity.ReturnRequest;
 import com.example.order.domain.enumtype.OrderEventType;
-import com.todaylunch.common.event.contract.EventEnvelope;
+import com.example.common.event.contract.EventEnvelope;
 
 import java.math.BigDecimal;
 import java.time.Instant;

@@ -2,7 +2,7 @@ package com.example.notification.presentation.exception;
 
 import com.example.notification.common.exception.NotificationNotFoundException;
 import com.example.notification.presentation.dto.ApiResponse;
-import com.todaylunch.common.security.exception.InvalidTokenException;
+import com.example.common.security.exception.InvalidTokenException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

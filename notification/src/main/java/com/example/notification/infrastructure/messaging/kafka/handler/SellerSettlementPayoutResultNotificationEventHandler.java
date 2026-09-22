@@ -5,7 +5,7 @@ import com.example.notification.infrastructure.messaging.kafka.contract.PayoutFa
 import com.example.notification.infrastructure.messaging.kafka.contract.SellerSettlementPayoutResultMessage;
 import com.example.notification.infrastructure.messaging.kafka.contract.SellerSettlementPayoutResultStatus;
 import com.example.notification.infrastructure.messaging.kafka.dlq.exception.InvalidEventPayloadException;
-import com.todaylunch.common.event.contract.EventEnvelope;
+import com.example.common.event.contract.EventEnvelope;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;

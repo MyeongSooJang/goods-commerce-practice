@@ -4,13 +4,11 @@ import com.example.member.application.dto.command.AccountVerificationCreateComma
 import com.example.member.application.dto.command.SellerRegisterCommand;
 import com.example.member.application.dto.result.AccountVerificationSendResult;
 import com.example.member.application.dto.result.SellerResult;
-import com.example.member.application.port.out.MemberPersistencePort;
-import com.example.member.application.port.out.SellerPersistencePort;
-import com.example.member.application.port.in.AccountVerificationUsecase;
-import com.example.member.application.port.in.SellerUsecase;
-import com.example.member.common.exception.MemberNotFoundException;
-import com.example.member.common.exception.SellerAlreadyRegisteredException;
-import com.example.member.common.exception.SellerNotFoundException;
+import com.example.member.domain.repository.MemberRepository;
+import com.example.member.domain.repository.SellerRepository;
+import com.example.member.domain.exception.MemberNotFoundException;
+import com.example.member.domain.exception.SellerAlreadyRegisteredException;
+import com.example.member.domain.exception.SellerNotFoundException;
 import com.example.member.domain.entity.Member;
 import com.example.member.domain.entity.Seller;
 import java.util.UUID;
@@ -21,23 +19,22 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class SellerService implements SellerUsecase {
+public class SellerService {
 
-    private final SellerPersistencePort sellerPersistencePort;
-    private final MemberPersistencePort memberPersistencePort;
-    private final AccountVerificationUsecase accountVerificationUsecase;
+    private final SellerRepository sellerRepository;
+    private final MemberRepository memberRepository;
+    private final AccountVerificationService accountVerificationService;
 
     @Transactional
-    @Override
     public AccountVerificationSendResult registerSeller(UUID memberId, SellerRegisterCommand command) {
         validateRegisterCommand(command);
         getMember(memberId);
 
-        if (sellerPersistencePort.existsByMemberId(memberId)) {
+        if (sellerRepository.existsByMemberId(memberId)) {
             throw new SellerAlreadyRegisteredException();
         }
 
-        return accountVerificationUsecase.createAccountVerification(
+        return accountVerificationService.createAccountVerification(
                 memberId,
                 new AccountVerificationCreateCommand(
                         normalizeRequired(command.bankName(), "bankName"),
@@ -46,10 +43,9 @@ public class SellerService implements SellerUsecase {
         );
     }
 
-    @Override
     public SellerResult getCurrentSeller(UUID memberId) {
         getMember(memberId);
-        Seller seller = sellerPersistencePort.findByMemberId(memberId)
+        Seller seller = sellerRepository.findByMemberId(memberId)
                 .orElseThrow(SellerNotFoundException::new);
 
         return new SellerResult(
@@ -68,7 +64,7 @@ public class SellerService implements SellerUsecase {
     }
 
     private Member getMember(UUID memberId) {
-        return memberPersistencePort.findById(memberId)
+        return memberRepository.findById(memberId)
                 .orElseThrow(MemberNotFoundException::new);
     }
 

@@ -1,6 +1,6 @@
 package com.example.order.config;
 
-import com.todaylunch.common.security.auth.constant.AuthHeaders;
+import com.example.common.security.auth.constant.AuthHeaders;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import jakarta.servlet.http.HttpServletRequest;

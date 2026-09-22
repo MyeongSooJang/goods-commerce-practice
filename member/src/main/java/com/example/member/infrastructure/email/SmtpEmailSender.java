@@ -1,6 +1,6 @@
 package com.example.member.infrastructure.email;
 
-import com.example.member.common.exception.EmailSendFailedException;
+import com.example.member.domain.exception.EmailSendFailedException;
 import com.example.member.config.EmailProperties;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;

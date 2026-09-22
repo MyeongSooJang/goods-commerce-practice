@@ -1,8 +1,8 @@
 package com.example.notification.presentation.controller;
 
 import com.example.notification.infrastructure.sse.NotificationSseEmitterRegistry;
-import com.todaylunch.common.security.auth.annotation.CurrentMember;
-import com.todaylunch.common.security.auth.dto.AuthenticatedMember;
+import com.example.common.security.auth.annotation.CurrentMember;
+import com.example.common.security.auth.dto.AuthenticatedMember;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;

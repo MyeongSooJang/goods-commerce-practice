@@ -7,15 +7,14 @@ import com.example.member.application.dto.result.AccountVerificationCancelResult
 import com.example.member.application.dto.result.AccountVerificationConfirmResult;
 import com.example.member.application.dto.result.AccountVerificationCurrentResult;
 import com.example.member.application.dto.result.AccountVerificationSendResult;
-import com.example.member.application.port.in.AccountVerificationUsecase;
-import com.example.member.application.port.out.MemberEventPort;
-import com.example.member.application.port.out.MemberPersistencePort;
-import com.example.member.common.exception.AccountVerificationAttemptLimitExceededException;
-import com.example.member.common.exception.AccountVerificationNotAllowedException;
-import com.example.member.common.exception.AccountVerificationNotFoundException;
-import com.example.member.common.exception.AccountVerificationResendLimitExceededException;
-import com.example.member.common.exception.ExpiredAccountVerificationException;
-import com.example.member.common.exception.InvalidAccountVerificationCodeException;
+import com.example.member.domain.repository.MemberRepository;
+import com.example.member.infrastructure.messaging.MemberEventPublisher;
+import com.example.member.domain.exception.AccountVerificationAttemptLimitExceededException;
+import com.example.member.domain.exception.AccountVerificationNotAllowedException;
+import com.example.member.domain.exception.AccountVerificationNotFoundException;
+import com.example.member.domain.exception.AccountVerificationResendLimitExceededException;
+import com.example.member.domain.exception.ExpiredAccountVerificationException;
+import com.example.member.domain.exception.InvalidAccountVerificationCodeException;
 import com.example.member.config.AccountVerificationProperties;
 import com.example.member.domain.entity.Member;
 import com.example.member.domain.enumtype.AccountVerificationStatus;
@@ -26,7 +25,7 @@ import com.example.member.infrastructure.redis.auth.ParsedRefreshToken;
 import com.example.member.infrastructure.redis.auth.RefreshTokenStore;
 import com.example.member.infrastructure.redis.seller.SellerDraft;
 import com.example.member.infrastructure.redis.seller.SellerDraftStore;
-import com.example.member.infrastructure.security.jwt.JwtTokenProvider;
+import com.example.member.infrastructure.jwt.JwtTokenProvider;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -43,11 +42,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class AccountVerificationService implements AccountVerificationUsecase {
+public class AccountVerificationService {
 
     private static final Duration LOCK_TTL = Duration.ofSeconds(5);
 
-    private final MemberPersistencePort memberPersistencePort;
+    private final MemberRepository memberRepository;
     private final AccountVerificationSessionStore sessionStore;
     private final SellerDraftStore sellerDraftStore;
     private final AccountEncryptionService accountEncryptionService;
@@ -55,9 +54,8 @@ public class AccountVerificationService implements AccountVerificationUsecase {
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenStore refreshTokenStore;
     private final AccountVerificationProperties properties;
-    private final MemberEventPort memberEventPort;
+    private final MemberEventPublisher memberEventPort;
 
-    @Override
     @Transactional
     public AccountVerificationSendResult createAccountVerification(
             UUID memberId,
@@ -120,7 +118,6 @@ public class AccountVerificationService implements AccountVerificationUsecase {
         );
     }
 
-    @Override
     @Transactional
     public AccountVerificationConfirmResult confirmAccountVerification(
             UUID memberId,
@@ -175,7 +172,6 @@ public class AccountVerificationService implements AccountVerificationUsecase {
         }
     }
 
-    @Override
     public AccountVerificationCurrentResult getCurrentAccountVerification(UUID memberId) {
         getMember(memberId);
         Optional<String> currentSessionId = sessionStore.findCurrentSessionId(memberId);
@@ -199,7 +195,6 @@ public class AccountVerificationService implements AccountVerificationUsecase {
         return buildCurrentResponse(current);
     }
 
-    @Override
     @Transactional
     public AccountVerificationSendResult resendAccountVerification(UUID memberId, String sessionId) {
         acquireLockOrThrow(sessionId);
@@ -241,7 +236,6 @@ public class AccountVerificationService implements AccountVerificationUsecase {
         }
     }
 
-    @Override
     @Transactional
     public AccountVerificationCancelResult cancelAccountVerification(UUID memberId, String sessionId) {
         acquireLockOrThrow(sessionId);
@@ -287,7 +281,7 @@ public class AccountVerificationService implements AccountVerificationUsecase {
     }
 
     private Member getMember(UUID memberId) {
-        return memberPersistencePort.findById(memberId)
+        return memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
     }
 

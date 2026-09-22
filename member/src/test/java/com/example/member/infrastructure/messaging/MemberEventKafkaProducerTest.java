@@ -12,7 +12,7 @@ import com.example.member.application.event.AccountVerificationFailedEvent;
 import com.example.member.application.event.MemberOauthLinkedEvent;
 import com.example.member.application.event.MemberSignedUpEvent;
 import com.example.member.application.event.SellerPromotedEvent;
-import com.todaylunch.common.event.contract.EventEnvelope;
+import com.example.common.event.contract.EventEnvelope;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;

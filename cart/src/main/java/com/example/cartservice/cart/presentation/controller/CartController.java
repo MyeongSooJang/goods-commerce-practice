@@ -8,8 +8,8 @@ import com.example.cartservice.cart.presentation.dto.request.DeleteCartItemsRequ
 import com.example.cartservice.cart.presentation.dto.request.DeleteOrderedItemsRequest;
 import com.example.cartservice.cart.presentation.dto.request.UpdateCartItemRequest;
 import com.example.cartservice.cart.presentation.dto.response.CartResponse;
-import com.todaylunch.common.security.auth.annotation.CurrentMember;
-import com.todaylunch.common.security.auth.dto.AuthenticatedMember;
+import com.example.common.security.auth.annotation.CurrentMember;
+import com.example.common.security.auth.dto.AuthenticatedMember;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

@@ -6,13 +6,12 @@ import com.example.member.application.dto.command.TokenRefreshCommand;
 import com.example.member.application.dto.result.AuthSessionListResult;
 import com.example.member.application.dto.result.AuthSessionResult;
 import com.example.member.application.dto.result.AuthTokenResult;
-import com.example.member.application.port.in.AuthUsecase;
-import com.example.member.application.port.out.MemberPersistencePort;
-import com.example.member.common.exception.EmailVerificationRequiredException;
-import com.example.member.common.exception.InvalidLoginException;
-import com.example.member.common.exception.MemberRestrictedException;
-import com.example.member.common.exception.MemberWithdrawnException;
-import com.example.member.common.exception.RefreshTokenNotFoundException;
+import com.example.member.domain.repository.MemberRepository;
+import com.example.member.domain.exception.EmailVerificationRequiredException;
+import com.example.member.domain.exception.InvalidLoginException;
+import com.example.member.domain.exception.MemberRestrictedException;
+import com.example.member.domain.exception.MemberWithdrawnException;
+import com.example.member.domain.exception.RefreshTokenNotFoundException;
 import com.example.member.domain.entity.Member;
 import com.example.member.domain.entity.MemberRestriction;
 import com.example.member.domain.enumtype.MemberStatus;
@@ -21,8 +20,8 @@ import com.example.member.infrastructure.redis.auth.ParsedAccessToken;
 import com.example.member.infrastructure.redis.auth.ParsedRefreshToken;
 import com.example.member.infrastructure.redis.auth.RefreshTokenStore;
 import com.example.member.infrastructure.redis.auth.TokenBlacklistStore;
-import com.example.member.infrastructure.security.jwt.JwtTokenProvider;
-import com.todaylunch.common.security.exception.InvalidTokenException;
+import com.example.member.infrastructure.jwt.JwtTokenProvider;
+import com.example.common.security.exception.InvalidTokenException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -37,21 +36,20 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class AuthService implements AuthUsecase {
+public class AuthService {
 
-    private final MemberPersistencePort memberPersistencePort;
+    private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenStore refreshTokenStore;
     private final TokenBlacklistStore tokenBlacklistStore;
     private final MemberRestrictionService memberRestrictionService;
 
-    @Override
     public AuthTokenResult login(LoginCommand command, AuthSessionMetadata metadata) {
         validateLoginCommand(command);
 
         String email = normalizeRequired(command.email(), "email");
-        Member member = memberPersistencePort.findByEmail(email)
+        Member member = memberRepository.findByEmail(email)
                 .orElseThrow(InvalidLoginException::new);
 
         if (!passwordEncoder.matches(normalizeRequired(command.password(), "password"), member.getPassword())) {
@@ -70,7 +68,6 @@ public class AuthService implements AuthUsecase {
         return issueLoginResponse(member, metadata);
     }
 
-    @Override
     public AuthTokenResult refresh(TokenRefreshCommand command, AuthSessionMetadata metadata) {
         validateRefreshCommand(command);
 
@@ -95,7 +92,7 @@ public class AuthService implements AuthUsecase {
             throw new InvalidTokenException();
         }
 
-        Member member = memberPersistencePort.findById(parsedRefreshToken.memberId())
+        Member member = memberRepository.findById(parsedRefreshToken.memberId())
                 .orElseThrow(InvalidTokenException::new);
         validateActiveMember(member);
 
@@ -119,7 +116,6 @@ public class AuthService implements AuthUsecase {
         );
     }
 
-    @Override
     public AuthSessionListResult getSessions(UUID memberId, UUID currentSessionId) {
         List<AuthSessionResult> sessions = refreshTokenStore.findSessionsByMemberId(memberId).stream()
                 .sorted(Comparator.comparing(AuthSession::lastAccessedAt).reversed()
@@ -137,7 +133,6 @@ public class AuthService implements AuthUsecase {
         return new AuthSessionListResult(sessions);
     }
 
-    @Override
     public void logoutSession(
         String accessToken, 
         UUID memberId, 
@@ -163,7 +158,6 @@ public class AuthService implements AuthUsecase {
         );
     }
 
-    @Override
     public void logoutCurrentSession(String accessToken) {
         ParsedAccessToken parsedAccessToken = parseRequiredAccessToken(accessToken);
         refreshTokenStore.deleteSession(parsedAccessToken.memberId(), parsedAccessToken.sessionId());
@@ -177,7 +171,6 @@ public class AuthService implements AuthUsecase {
         );
     }
 
-    @Override
     public void logoutAllSessions(String accessToken) {
         ParsedAccessToken parsedAccessToken = parseRequiredAccessToken(accessToken);
         Set<UUID> sessionIds = refreshTokenStore.findSessionIdsByMemberId(parsedAccessToken.memberId());
@@ -194,7 +187,6 @@ public class AuthService implements AuthUsecase {
         );
     }
 
-    @Override
     public void logout(UUID memberId) {
         refreshTokenStore.deleteAllSessions(memberId);
     }

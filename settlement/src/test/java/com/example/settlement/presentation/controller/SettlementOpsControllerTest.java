@@ -11,8 +11,8 @@ import com.example.settlement.presentation.dto.request.ManualFailedPayoutRequest
 import com.example.settlement.presentation.dto.response.ApiResponse;
 import com.example.settlement.presentation.dto.response.FailedPayoutReplayResponse;
 import com.example.settlement.presentation.dto.response.ManualFailedPayoutResponse;
-import com.todaylunch.common.security.auth.dto.AuthenticatedMember;
-import com.todaylunch.common.security.auth.enumtype.MemberRole;
+import com.example.common.security.auth.dto.AuthenticatedMember;
+import com.example.common.security.auth.enumtype.MemberRole;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
