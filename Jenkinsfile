@@ -175,6 +175,7 @@ pipeline {
             when { expression { env.NEED_DEPLOY == 'true' } }
             steps {
                 script {
+                    sh 'docker image prune -f'
                     if (env.BUILD_ALL == 'true') {
                         sh 'docker compose build'
                         sh 'docker compose up -d'
