@@ -74,10 +74,7 @@ services:
       retries: 10
 
   elasticsearch:
-    image: ${ECR_REGISTRY}/goods-commerce/elasticsearch:latest
-    build:
-      context: .
-      dockerfile: product/docker/elasticsearch/Dockerfile
+    image: goods-commerce/elasticsearch:latest
     container_name: elasticsearch
     restart: unless-stopped
     environment:

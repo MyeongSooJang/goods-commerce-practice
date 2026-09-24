@@ -200,16 +200,6 @@ pipeline {
                         sh "docker image rm ${ecrImage}:latest"
                     }
 
-                    // elasticsearch는 APP_SERVICES와 별도로 관리
-                    if (env.DEPLOY_SERVICES?.contains('elasticsearch')) {
-                        def ecrImage = "${ECR_REGISTRY}/${ECR_NAMESPACE}/elasticsearch"
-                        sh "docker compose build elasticsearch"
-                        sh "docker tag ${ecrImage}:latest ${ecrImage}:${imageTag}"
-                        sh "docker push ${ecrImage}:${imageTag}"
-                        sh "docker push ${ecrImage}:latest"
-                        sh "docker image rm ${ecrImage}:${imageTag}"
-                        sh "docker image rm ${ecrImage}:latest"
-                    }
                 }
             }
         }
@@ -229,6 +219,21 @@ pipeline {
                             '
                         """
                         sh "scp -o StrictHostKeyChecking=no db-migration/src/main/resources/db/seed/dev_seed_payment_settlement.sql ubuntu@${APP_SERVER}:~/app/db-migration/src/main/resources/db/seed/"
+
+                        // elasticsearch는 EC2-B에서 직접 빌드 (변경 시에만)
+                        if (env.DEPLOY_SERVICES?.contains('elasticsearch')) {
+                            sh """
+                                ssh -o StrictHostKeyChecking=no ubuntu@${APP_SERVER} '
+                                    mkdir -p ~/app/elasticsearch
+                                '
+                            """
+                            sh "scp -o StrictHostKeyChecking=no product/docker/elasticsearch/Dockerfile ubuntu@${APP_SERVER}:~/app/elasticsearch/Dockerfile"
+                            sh """
+                                ssh -o StrictHostKeyChecking=no ubuntu@${APP_SERVER} '
+                                    docker build -t goods-commerce/elasticsearch:latest ~/app/elasticsearch/
+                                '
+                            """
+                        }
 
                         def pullCmd = env.BUILD_ALL == 'true'
                             ? 'docker compose pull'
