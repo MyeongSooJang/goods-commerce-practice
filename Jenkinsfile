@@ -8,6 +8,11 @@ pipeline {
     environment {
         APP_SERVICES = 'product cart member order payment settlement notification gateway auction ai db-migration'
         COMMON_MODULES = 'common-security common-monitoring common-messaging'
+
+        AWS_REGION    = 'ap-northeast-2'
+        ECR_REGISTRY  = '800728769281.dkr.ecr.ap-northeast-2.amazonaws.com'
+        ECR_NAMESPACE = 'goods-commerce'
+        APP_SERVER    = '3.34.151.217'
     }
 
     stages {
@@ -67,11 +72,11 @@ pipeline {
                     services = services.unique()
                     testModules = (testModules + services).unique()
 
-                    env.BUILD_ALL = buildAll.toString()
-                    env.COMPOSE_CHANGED = composeChanged.toString()
-                    env.TEST_MODULES = testModules.join(' ')
-                    env.DEPLOY_SERVICES = (services + (elasticsearch ? ['elasticsearch'] : [])).join(' ')
-                    env.NEED_DEPLOY = (buildAll || composeChanged || env.DEPLOY_SERVICES.trim()) ? 'true' : 'false'
+                    env.BUILD_ALL        = buildAll.toString()
+                    env.COMPOSE_CHANGED  = composeChanged.toString()
+                    env.TEST_MODULES     = testModules.join(' ')
+                    env.DEPLOY_SERVICES  = (services + (elasticsearch ? ['elasticsearch'] : [])).join(' ')
+                    env.NEED_DEPLOY      = (buildAll || composeChanged || env.DEPLOY_SERVICES.trim()) ? 'true' : 'false'
 
                     echo "buildAll=${env.BUILD_ALL}, composeChanged=${env.COMPOSE_CHANGED}"
                     echo "test modules: ${env.TEST_MODULES ?: '(none)'}"
@@ -166,7 +171,37 @@ pipeline {
                         echo "AWS_S3_BUCKET=${AWS_S3_BUCKET}" >> .env
                         echo "SWEET_TRACKER_API_KEY=${SWEET_TRACKER_API_KEY}" >> .env
                         echo "SWEET_TRACKER_API_BASE_URL=https://info.sweettracker.co.kr" >> .env
+                        echo "ECR_REGISTRY=${ECR_REGISTRY}" >> .env
                     '''
+                }
+            }
+        }
+
+        stage('Build & Push') {
+            when { expression { env.NEED_DEPLOY == 'true' } }
+            steps {
+                script {
+                    sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
+
+                    def appServiceList = env.APP_SERVICES.split(' ') as List
+                    // elasticsearch 등 ECR 대상이 아닌 서비스 제외
+                    def deployList = env.BUILD_ALL == 'true'
+                        ? appServiceList
+                        : env.DEPLOY_SERVICES.split(' ').findAll { it in appServiceList }
+
+                    deployList.each { svc ->
+                        def imageTag = env.GIT_COMMIT.take(8)
+                        def ecrImage = "${ECR_REGISTRY}/${ECR_NAMESPACE}/${svc}"
+
+                        sh "docker compose build ${svc}"
+                        sh "docker tag ${svc}:latest ${ecrImage}:${imageTag}"
+                        sh "docker tag ${svc}:latest ${ecrImage}:latest"
+                        sh "docker push ${ecrImage}:${imageTag}"
+                        sh "docker push ${ecrImage}:latest"
+                        sh "docker image rm ${ecrImage}:${imageTag}"
+                        sh "docker image rm ${ecrImage}:latest"
+                        sh "docker image rm ${svc}:latest"
+                    }
                 }
             }
         }
@@ -175,19 +210,28 @@ pipeline {
             when { expression { env.NEED_DEPLOY == 'true' } }
             steps {
                 script {
-                    sh 'docker image prune -af'
-                    sh 'docker builder prune --keep-storage 1GB -f'
-                    if (env.BUILD_ALL == 'true') {
-                        sh 'docker compose build'
-                        sh 'docker compose up -d'
-                    } else {
-                        if (env.DEPLOY_SERVICES?.trim()) {
-                            sh 'docker compose build $DEPLOY_SERVICES'
-                            sh 'docker compose up -d --no-deps $DEPLOY_SERVICES'
-                        }
-                        if (env.COMPOSE_CHANGED == 'true') {
-                            sh 'docker compose up -d'
-                        }
+                    sshagent(['app-server-key']) {
+                        // EC2-B로 최신 .env 및 compose 파일 전송
+                        sh "scp -o StrictHostKeyChecking=no .env ubuntu@${APP_SERVER}:~/app/.env"
+                        sh "scp -o StrictHostKeyChecking=no docker-compose.yml ubuntu@${APP_SERVER}:~/app/docker-compose.yml"
+
+                        def pullCmd = env.BUILD_ALL == 'true'
+                            ? 'docker compose pull'
+                            : "docker compose pull ${env.DEPLOY_SERVICES}"
+
+                        def upCmd = env.BUILD_ALL == 'true'
+                            ? 'docker compose up -d --no-build'
+                            : "docker compose up -d --no-build --no-deps ${env.DEPLOY_SERVICES}"
+
+                        sh """
+                            ssh -o StrictHostKeyChecking=no ubuntu@${APP_SERVER} '
+                                aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY} &&
+                                cd ~/app &&
+                                ${pullCmd} &&
+                                ${upCmd} &&
+                                docker image prune -f
+                            '
+                        """
                     }
                 }
             }
