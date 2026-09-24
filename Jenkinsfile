@@ -184,17 +184,26 @@ pipeline {
                     sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
 
                     def appServiceList = env.APP_SERVICES.split(' ') as List
-                    // elasticsearch 등 ECR 대상이 아닌 서비스 제외
+                    def imageTag = env.GIT_COMMIT.take(8)
+
                     def deployList = env.BUILD_ALL == 'true'
                         ? appServiceList
                         : env.DEPLOY_SERVICES.split(' ').findAll { it in appServiceList }
 
                     deployList.each { svc ->
-                        def imageTag = env.GIT_COMMIT.take(8)
                         def ecrImage = "${ECR_REGISTRY}/${ECR_NAMESPACE}/${svc}"
-
-                        // docker compose build 시 image: 필드로 인해 ecrImage:latest로 직접 태그됨
                         sh "docker compose build ${svc}"
+                        sh "docker tag ${ecrImage}:latest ${ecrImage}:${imageTag}"
+                        sh "docker push ${ecrImage}:${imageTag}"
+                        sh "docker push ${ecrImage}:latest"
+                        sh "docker image rm ${ecrImage}:${imageTag}"
+                        sh "docker image rm ${ecrImage}:latest"
+                    }
+
+                    // elasticsearch는 APP_SERVICES와 별도로 관리
+                    if (env.DEPLOY_SERVICES?.contains('elasticsearch')) {
+                        def ecrImage = "${ECR_REGISTRY}/${ECR_NAMESPACE}/elasticsearch"
+                        sh "docker compose build elasticsearch"
                         sh "docker tag ${ecrImage}:latest ${ecrImage}:${imageTag}"
                         sh "docker push ${ecrImage}:${imageTag}"
                         sh "docker push ${ecrImage}:latest"
@@ -210,9 +219,16 @@ pipeline {
             steps {
                 script {
                     sshagent(['app-server-key']) {
-                        // EC2-B로 최신 .env 및 compose 파일 전송
+                        // EC2-B로 최신 파일 전송
                         sh "scp -o StrictHostKeyChecking=no .env ubuntu@${APP_SERVER}:~/app/.env"
                         sh "scp -o StrictHostKeyChecking=no docker-compose.yml ubuntu@${APP_SERVER}:~/app/docker-compose.yml"
+                        sh "scp -r -o StrictHostKeyChecking=no monitoring ubuntu@${APP_SERVER}:~/app/monitoring"
+                        sh """
+                            ssh -o StrictHostKeyChecking=no ubuntu@${APP_SERVER} '
+                                mkdir -p ~/app/db-migration/src/main/resources/db/seed
+                            '
+                        """
+                        sh "scp -o StrictHostKeyChecking=no db-migration/src/main/resources/db/seed/dev_seed_payment_settlement.sql ubuntu@${APP_SERVER}:~/app/db-migration/src/main/resources/db/seed/"
 
                         def pullCmd = env.BUILD_ALL == 'true'
                             ? 'docker compose pull'
