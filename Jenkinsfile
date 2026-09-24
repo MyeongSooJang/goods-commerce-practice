@@ -236,8 +236,8 @@ pipeline {
                         }
 
                         def pullCmd = env.BUILD_ALL == 'true'
-                            ? 'docker compose pull'
-                            : "docker compose pull ${env.DEPLOY_SERVICES}"
+                            ? 'docker compose pull --ignore-pull-failures'
+                            : "docker compose pull --ignore-pull-failures ${env.DEPLOY_SERVICES}"
 
                         def upCmd = env.BUILD_ALL == 'true'
                             ? 'docker compose up -d --no-build'
