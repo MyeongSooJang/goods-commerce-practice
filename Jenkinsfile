@@ -193,14 +193,13 @@ pipeline {
                         def imageTag = env.GIT_COMMIT.take(8)
                         def ecrImage = "${ECR_REGISTRY}/${ECR_NAMESPACE}/${svc}"
 
+                        // docker compose build 시 image: 필드로 인해 ecrImage:latest로 직접 태그됨
                         sh "docker compose build ${svc}"
-                        sh "docker tag ${svc}:latest ${ecrImage}:${imageTag}"
-                        sh "docker tag ${svc}:latest ${ecrImage}:latest"
+                        sh "docker tag ${ecrImage}:latest ${ecrImage}:${imageTag}"
                         sh "docker push ${ecrImage}:${imageTag}"
                         sh "docker push ${ecrImage}:latest"
                         sh "docker image rm ${ecrImage}:${imageTag}"
                         sh "docker image rm ${ecrImage}:latest"
-                        sh "docker image rm ${svc}:latest"
                     }
                 }
             }
