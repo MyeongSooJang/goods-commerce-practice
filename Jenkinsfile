@@ -248,6 +248,8 @@ pipeline {
                                 aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY} &&
                                 cd ~/app &&
                                 ${pullCmd} &&
+                                docker compose up -d --no-build elasticsearch &&
+                                timeout 600 sh -c "until docker inspect elasticsearch 2>/dev/null | grep -q healthy; do sleep 10; done" &&
                                 ${upCmd} &&
                                 docker image prune -f
                             '
