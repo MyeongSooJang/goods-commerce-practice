@@ -192,8 +192,6 @@ pipeline {
                         sh "docker tag ${ecrImage}:latest ${ecrImage}:${imageTag}"
                         sh "docker push ${ecrImage}:${imageTag}"
                         sh "docker push ${ecrImage}:latest"
-                        sh "docker image rm ${ecrImage}:${imageTag}"
-                        sh "docker image rm ${ecrImage}:latest"
                     }
 
                 }
@@ -217,11 +215,11 @@ pipeline {
                         sh "scp -o StrictHostKeyChecking=no db-migration/src/main/resources/db/seed/dev_seed_payment_settlement.sql ubuntu@${APP_SERVER}:~/app/db-migration/src/main/resources/db/seed/"
 
                         def pullCmd = env.BUILD_ALL == 'true'
-                            ? 'docker compose pull --ignore-pull-failures'
+                            ? "docker compose pull --ignore-pull-failures ${env.APP_SERVICES}"
                             : "docker compose pull --ignore-pull-failures ${env.DEPLOY_SERVICES}"
 
                         def upCmd = env.BUILD_ALL == 'true'
-                            ? 'docker compose up -d --no-build'
+                            ? "docker compose up -d --no-build --no-deps ${env.APP_SERVICES}"
                             : "docker compose up -d --no-build --no-deps ${env.DEPLOY_SERVICES}"
 
                         sh """
