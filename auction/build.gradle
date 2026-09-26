@@ -50,7 +50,7 @@ dependencies {
     // OpenFeign
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
     // Kafka
-    implementation 'org.springframework.boot:spring-boot-starter-kafka'
+    implementation project(':common-messaging')
     // Retry
     implementation 'org.springframework.retry:spring-retry'
     implementation 'org.aspectj:aspectjweaver'
