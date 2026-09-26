@@ -39,7 +39,6 @@ pipeline {
 
                     def buildAll = (changed == null)
                     def composeChanged = false
-                    def elasticsearch = false
                     def services = []
                     def testModules = []
 
@@ -50,8 +49,6 @@ pipeline {
                                 buildAll = true
                             } else if (f == 'docker-compose.yml') {
                                 composeChanged = true
-                            } else if (f.startsWith('product/docker/elasticsearch/')) {
-                                elasticsearch = true
                             } else if (top in appServices) {
                                 services << top
                             } else if (top in commonModules) {
@@ -74,7 +71,7 @@ pipeline {
                     env.BUILD_ALL        = buildAll.toString()
                     env.COMPOSE_CHANGED  = composeChanged.toString()
                     env.TEST_MODULES     = testModules.join(' ')
-                    env.DEPLOY_SERVICES  = (services + (elasticsearch ? ['elasticsearch'] : [])).join(' ')
+                    env.DEPLOY_SERVICES  = services.join(' ')
                     env.NEED_DEPLOY      = (buildAll || composeChanged || env.DEPLOY_SERVICES.trim()) ? 'true' : 'false'
 
                     echo "buildAll=${env.BUILD_ALL}, composeChanged=${env.COMPOSE_CHANGED}"
@@ -226,24 +223,6 @@ pipeline {
                         def upCmd = env.BUILD_ALL == 'true'
                             ? 'docker compose up -d --no-build'
                             : "docker compose up -d --no-build --no-deps ${env.DEPLOY_SERVICES}"
-
-                        // elasticsearch는 EC2-B에서 직접 빌드 후 healthy 확인 (변경 시에만)
-                        if (env.DEPLOY_SERVICES?.contains('elasticsearch')) {
-                            sh """
-                                ssh -o StrictHostKeyChecking=no ubuntu@${APP_SERVER} '
-                                    mkdir -p ~/app/elasticsearch
-                                '
-                            """
-                            sh "scp -o StrictHostKeyChecking=no product/docker/elasticsearch/Dockerfile ubuntu@${APP_SERVER}:~/app/elasticsearch/Dockerfile"
-                            sh """
-                                ssh -o StrictHostKeyChecking=no ubuntu@${APP_SERVER} '
-                                    cd ~/app &&
-                                    docker build -t goods-commerce/elasticsearch:latest ~/app/elasticsearch/ &&
-                                    docker compose up -d --no-build elasticsearch &&
-                                    timeout 600 sh -c "until docker inspect elasticsearch 2>/dev/null | grep -q healthy; do sleep 10; done"
-                                '
-                            """
-                        }
 
                         sh """
                             ssh -o StrictHostKeyChecking=no ubuntu@${APP_SERVER} '

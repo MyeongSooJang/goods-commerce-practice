@@ -1,11 +1,1 @@
-{
-  "analysis": {
-    "analyzer": {
-      "korean_analyzer": {
-        "type": "custom",
-        "tokenizer": "nori_tokenizer",
-        "filter": ["nori_readingform", "lowercase", "nori_part_of_speech"]
-      }
-    }
-  }
-}
+{}
