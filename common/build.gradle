@@ -15,7 +15,6 @@ dependencies {
     api 'org.springframework:spring-webmvc'
 
     compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'
-    compileOnly 'org.springframework.kafka:spring-kafka'
     compileOnly 'org.springframework.boot:spring-boot-actuator-autoconfigure'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
