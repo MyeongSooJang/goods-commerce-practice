@@ -4,8 +4,8 @@ import com.example.payment.common.exception.AuctionBidFeeEventValidationExceptio
 import com.example.payment.common.exception.WalletNotFoundException;
 import com.example.payment.infrastructure.messaging.kafka.KafkaConsumerGroups;
 import com.example.payment.infrastructure.messaging.kafka.KafkaTopics;
-import com.example.common.messaging.kafka.DlqErrorHandlerFactory;
-import com.example.common.messaging.kafka.KafkaConsumerProps;
+import com.todaylunch.common.messaging.kafka.DlqErrorHandlerFactory;
+import com.todaylunch.common.messaging.kafka.KafkaConsumerProps;
 import com.example.payment.infrastructure.messaging.kafka.contract.MemberCreatedMessage;
 import com.example.payment.infrastructure.messaging.kafka.contract.OrderPurchaseConfirmedMessage;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
