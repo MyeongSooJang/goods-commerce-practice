@@ -219,7 +219,15 @@ pipeline {
                         """
                         sh "scp -o StrictHostKeyChecking=no db-migration/src/main/resources/db/seed/dev_seed_payment_settlement.sql ubuntu@${APP_SERVER}:~/app/db-migration/src/main/resources/db/seed/"
 
-                        // elasticsearch는 EC2-B에서 직접 빌드 (변경 시에만)
+                        def pullCmd = env.BUILD_ALL == 'true'
+                            ? 'docker compose pull --ignore-pull-failures'
+                            : "docker compose pull --ignore-pull-failures ${env.DEPLOY_SERVICES}"
+
+                        def upCmd = env.BUILD_ALL == 'true'
+                            ? 'docker compose up -d --no-build'
+                            : "docker compose up -d --no-build --no-deps ${env.DEPLOY_SERVICES}"
+
+                        // elasticsearch는 EC2-B에서 직접 빌드 후 healthy 확인 (변경 시에만)
                         if (env.DEPLOY_SERVICES?.contains('elasticsearch')) {
                             sh """
                                 ssh -o StrictHostKeyChecking=no ubuntu@${APP_SERVER} '
@@ -229,26 +237,19 @@ pipeline {
                             sh "scp -o StrictHostKeyChecking=no product/docker/elasticsearch/Dockerfile ubuntu@${APP_SERVER}:~/app/elasticsearch/Dockerfile"
                             sh """
                                 ssh -o StrictHostKeyChecking=no ubuntu@${APP_SERVER} '
-                                    docker build -t goods-commerce/elasticsearch:latest ~/app/elasticsearch/
+                                    cd ~/app &&
+                                    docker build -t goods-commerce/elasticsearch:latest ~/app/elasticsearch/ &&
+                                    docker compose up -d --no-build elasticsearch &&
+                                    timeout 600 sh -c "until docker inspect elasticsearch 2>/dev/null | grep -q healthy; do sleep 10; done"
                                 '
                             """
                         }
-
-                        def pullCmd = env.BUILD_ALL == 'true'
-                            ? 'docker compose pull --ignore-pull-failures'
-                            : "docker compose pull --ignore-pull-failures ${env.DEPLOY_SERVICES}"
-
-                        def upCmd = env.BUILD_ALL == 'true'
-                            ? 'docker compose up -d --no-build'
-                            : "docker compose up -d --no-build --no-deps ${env.DEPLOY_SERVICES}"
 
                         sh """
                             ssh -o StrictHostKeyChecking=no ubuntu@${APP_SERVER} '
                                 aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY} &&
                                 cd ~/app &&
                                 ${pullCmd} &&
-                                docker compose up -d --no-build elasticsearch &&
-                                timeout 600 sh -c "until docker inspect elasticsearch 2>/dev/null | grep -q healthy; do sleep 10; done" &&
                                 ${upCmd} &&
                                 docker image prune -f
                             '
