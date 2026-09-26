@@ -32,7 +32,7 @@ dependencies {
     // JPA
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     // Kafka
-    implementation 'org.springframework.boot:spring-boot-starter-kafka'
+    implementation project(':common-messaging')
     // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
