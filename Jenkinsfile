@@ -67,7 +67,6 @@ pipeline {
 
                     if (buildAll) {
                         services = appServices
-                        elasticsearch = true
                     }
                     services = services.unique()
                     testModules = (testModules + services).unique()
