@@ -1,3 +1,29 @@
 spring:
-  profiles:
-    active: local
+  config:
+    import: optional:file:.env[.properties]
+  application:
+    name: db-migration
+  main:
+    web-application-type: none
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/goods_mall}
+    username: ${DB_USER_NAME:postgres}
+    password: ${DB_USER_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 2
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    locations:
+      - classpath:db/migration
+
+app:
+  seed:
+    enabled: ${DB_SEED_ENABLED:true}
+    locations: ${DB_SEED_LOCATIONS:classpath:db/seed/prod_seed_member.sql,classpath:db/seed/prod_seed_category.sql,classpath:db/seed/prod_seed_product.sql,classpath:db/seed/prod_seed_ai_product_embedding.sql}
+
+logging:
+  level:
+    org.flywaydb: INFO
