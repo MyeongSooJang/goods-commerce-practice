@@ -1,2 +1,2 @@
-com.todaylunch.common.monitoring.config.MonitoringAutoConfiguration
-com.todaylunch.common.monitoring.config.KafkaObservationConfig
+com.goods.common.monitoring.config.MonitoringAutoConfiguration
+com.goods.common.monitoring.config.KafkaObservationConfig
