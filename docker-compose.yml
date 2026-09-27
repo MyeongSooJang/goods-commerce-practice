@@ -150,6 +150,12 @@ services:
       TOSS_PAYMENTS_WIDGET_ENABLED: ${TOSS_PAYMENTS_WIDGET_ENABLED}
     ports:
       - "8082:8082"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
   settlement:
     image: ${ECR_REGISTRY}/goods-commerce/settlement:latest
@@ -174,6 +180,12 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
     ports:
       - "8085:8085"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8085/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
   gateway:
     image: ${ECR_REGISTRY}/goods-commerce/gateway:latest
@@ -188,6 +200,12 @@ services:
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
     ports:
       - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
   member:
     image: ${ECR_REGISTRY}/goods-commerce/member:latest
@@ -234,6 +252,12 @@ services:
       KAKAO_CLIENT_SECRET: ${KAKAO_CLIENT_SECRET}
     ports:
       - "8083:8083"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
   product:
     image: ${ECR_REGISTRY}/goods-commerce/product:latest
@@ -261,6 +285,12 @@ services:
       ELASTICSEARCH_URI: http://elasticsearch:9200
     ports:
       - "8081:8081"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
   cart:
     image: ${ECR_REGISTRY}/goods-commerce/cart:latest
@@ -282,6 +312,12 @@ services:
       DB_USER_PASSWORD: ${DB_USER_PASSWORD}
     ports:
       - "8086:8086"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8086/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
   order:
     image: ${ECR_REGISTRY}/goods-commerce/order:latest
@@ -310,6 +346,12 @@ services:
       REDIS_PORT: 6379
     ports:
       - "8084:8084"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8084/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
   notification:
     image: ${ECR_REGISTRY}/goods-commerce/notification:latest
@@ -334,6 +376,12 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
     ports:
       - "8087:8087"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8087/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
   auction:
     image: ${ECR_REGISTRY}/goods-commerce/auction:latest
@@ -358,6 +406,12 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
     ports:
       - "8090:8090"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
   ai:
     image: ${ECR_REGISTRY}/goods-commerce/ai:latest
@@ -390,6 +444,12 @@ services:
       AI_EMBEDDING_MODEL: ${AI_EMBEDDING_MODEL:-text-embedding-3-small}
     ports:
       - "8088:8088"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8088/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
   tempo:
     image: grafana/tempo:latest
