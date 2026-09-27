@@ -45,7 +45,7 @@ pipeline {
                     if (!buildAll) {
                         for (f in changed) {
                             def top = f.contains('/') ? f.split('/')[0] : ''
-                            if (f in ['build.gradle', 'settings.gradle', 'gradle.properties', 'gradlew', 'gradlew.bat'] || f.startsWith('gradle/')) {
+                            if (f in ['build.gradle', 'gradle.properties', 'gradlew', 'gradlew.bat'] || f.startsWith('gradle/')) {
                                 buildAll = true
                             } else if (f == 'docker-compose.yml') {
                                 composeChanged = true
