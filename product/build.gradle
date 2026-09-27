@@ -34,7 +34,7 @@ dependencies {
     // PostgreSQL
     runtimeOnly 'org.postgresql:postgresql'
     // AWS S3
-    implementation 'software.amazon.awssdk:s3:2.20.0'
+    implementation 'software.amazon.awssdk:s3:2.31.57'
     // Swagger (SpringDoc OpenAPI)
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.2'
     // DotEnv (.env 파일 자동 로드)
