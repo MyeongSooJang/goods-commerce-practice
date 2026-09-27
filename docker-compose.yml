@@ -226,7 +226,6 @@ services:
       db-migration:
         condition: service_completed_successfully
     environment:
-      SPRING_PROFILES_ACTIVE: prod
       DB_URL: ${DB_URL}
       DB_USER_NAME: ${DB_USER_NAME}
       DB_USER_PASSWORD: ${DB_USER_PASSWORD}
@@ -234,8 +233,8 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
-      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY}
-      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_KEY}
+      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
+      AWS_SECRET_KEY: ${AWS_SECRET_KEY}
       AWS_S3_BUCKET: ${AWS_S3_BUCKET}
       API_GATEWAY_HOST: http://gateway:8080
       EMAIL_PROVIDER: ${EMAIL_PROVIDER}
