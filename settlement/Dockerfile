@@ -15,5 +15,5 @@ COPY --from=builder /workspace/settlement/build/libs/settlement-0.0.1-SNAPSHOT.j
 
 EXPOSE 8085
 
-ENTRYPOINT ["java", "-Dspring.profiles.active=prod", "-jar", "/app/app.jar"]
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
 

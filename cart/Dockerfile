@@ -23,4 +23,4 @@ COPY --from=builder /workspace/cart/build/libs/cart-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8086
 
 # 컨테이너 시작 시 실행할 명령어 (로컬 환경이 아닌
-ENTRYPOINT ["java", "-Dspring.profiles.active=prod", "-jar", "/app/app.jar"]
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
