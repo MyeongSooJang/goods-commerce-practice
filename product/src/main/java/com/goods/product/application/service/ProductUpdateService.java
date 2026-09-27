@@ -1,0 +1,131 @@
+package com.goods.product.application.service;
+
+import com.goods.product.application.usecase.ProductUpdateUseCase;
+import com.goods.product.common.exception.ProductNotFoundException;
+import com.goods.product.domain.entity.Category;
+import com.goods.product.domain.entity.Product;
+import com.goods.product.domain.entity.ProductImage;
+import com.goods.product.domain.enumtype.ProductOrderStatus;
+import com.goods.product.domain.enumtype.ProductStatus;
+import com.goods.product.domain.repository.CategoryRepository;
+import com.goods.product.domain.repository.ProductRepository;
+import com.goods.product.infrastructure.messaging.kafka.ProductOutboxEventService;
+import com.goods.product.presentation.dto.request.ProductCheckRequest;
+import com.goods.product.presentation.dto.request.ProductUpdateRequest;
+import com.goods.product.presentation.dto.response.ProductAvailabilityResponse;
+import com.goods.product.presentation.dto.response.ProductResponse;
+import java.util.List;
+import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+@Transactional
+public class ProductUpdateService implements ProductUpdateUseCase {
+
+    private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
+    private final ProductOutboxEventService productOutboxEventService;
+
+    @Override
+    public ProductResponse updateProduct(String sellerId, String productId, ProductUpdateRequest request) {
+        Product product = findProduct(productId);
+        validateSellerAuthorization(product, sellerId);
+
+        Category category = categoryRepository.findById(request.categoryId());
+
+        product.updateProductInfo(request.title(), request.description(), request.price());
+        product.updateCategory(category);
+        product.updateStock(request.stockQuantity());
+
+        Product saved = saveProduct(product);
+        productOutboxEventService.saveUpdatedEvent(saved);
+        return ProductResponse.from(saved);
+    }
+
+    @Override
+    public ProductResponse increaseStock(String sellerId, String productId, Integer quantity) {
+        Product product = findProductWithLock(productId);
+        validateSellerAuthorization(product, sellerId);
+        product.increaseStock(quantity);
+        Product saved = saveProduct(product);
+        return ProductResponse.from(saved);
+    }
+
+    @Override
+    public ProductResponse decreaseStock(String sellerId, String productId, Integer quantity) {
+        Product product = findProductWithLock(productId);
+        validateSellerAuthorization(product, sellerId);
+        product.decreaseStock(quantity);
+        Product saved = saveProduct(product);
+        return ProductResponse.from(saved);
+    }
+
+    @Override
+    public ProductResponse updateStatus(String sellerId, String productId, ProductStatus status) {
+        Product product = findProduct(productId);
+        validateSellerAuthorization(product, sellerId);
+        product.updateStatus(status);
+        Product saved = saveProduct(product);
+        productOutboxEventService.saveUpdatedEvent(saved);
+        return ProductResponse.from(saved);
+    }
+
+    @Override
+    public ProductResponse restoreProduct(String sellerId, String productId) {
+        Product product = findProduct(productId);
+        validateSellerAuthorization(product, sellerId);
+        product.restore();
+        Product saved = saveProduct(product);
+        productOutboxEventService.saveUpdatedEvent(saved);
+        return ProductResponse.from(saved);
+    }
+
+    @Override
+    public List<ProductAvailabilityResponse> deductStock(List<ProductCheckRequest> productRequests) {
+        return productRequests.stream()
+                .map(this::validateAndDeductStock)
+                .toList();
+    }
+
+    private ProductAvailabilityResponse validateAndDeductStock(ProductCheckRequest request) {
+        Product product = productRepository.findByIdWithLock(request.productId())
+                .orElse(null);
+
+        if (product == null) {
+            return ProductAvailabilityResponse.notForSale(request.productId());
+        }
+
+        String thumbnail = productRepository.findThumbnailImageByProductId(request.productId())
+                .map(ProductImage::getS3Key).orElse(null);
+
+        ProductAvailabilityResponse response = ProductAvailabilityResponse.of(product, request.quantity(), thumbnail);
+
+        if (response.getProductOrderStatus() == ProductOrderStatus.ORDERABLE) {
+            product.decreaseStock(request.quantity());
+            productRepository.save(product);
+        }
+
+        return response;
+    }
+
+    private Product findProduct(String productId) {
+        return productRepository.findById(UUID.fromString(productId))
+                .orElseThrow(ProductNotFoundException::new);
+    }
+
+    private Product findProductWithLock(String productId) {
+        return productRepository.findByIdWithLock(UUID.fromString(productId))
+                .orElseThrow(ProductNotFoundException::new);
+    }
+
+    private void validateSellerAuthorization(Product product, String sellerId) {
+        product.validateSeller(UUID.fromString(sellerId));
+    }
+
+    private Product saveProduct(Product product) {
+        return productRepository.save(product);
+    }
+}

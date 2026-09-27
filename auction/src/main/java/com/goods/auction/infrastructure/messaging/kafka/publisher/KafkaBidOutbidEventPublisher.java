@@ -1,0 +1,48 @@
+package com.goods.auction.infrastructure.messaging.kafka.publisher;
+
+import com.goods.auction.infrastructure.messaging.kafka.AuctionEventTypes;
+import com.goods.auction.infrastructure.messaging.kafka.KafkaTopics;
+import com.goods.common.event.contract.EventEnvelope;
+import java.time.Instant;
+import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Component;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class KafkaBidOutbidEventPublisher {
+
+    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final ObjectMapper objectMapper;
+
+    public void publish(UUID auctionId, UUID outbidBidderId) {
+        try {
+            EventEnvelope<Void> envelope = new EventEnvelope<>(
+                    UUID.randomUUID(),
+                    AuctionEventTypes.AUCTION_BID_OUTBID,
+                    "auction-service",
+                    auctionId,
+                    outbidBidderId,
+                    Instant.now(),
+                    "mock-trace-id",
+                    null
+            );
+            String json = objectMapper.writeValueAsString(envelope);
+            kafkaTemplate.send(KafkaTopics.BID_OUTBID, auctionId.toString(), json)
+                    .whenComplete((result, ex) -> {
+                        if (ex != null) {
+                            log.error("bid-outbid 이벤트 발행 실패: auctionId={}, outbidBidderId={}", auctionId, outbidBidderId, ex);
+                        } else {
+                            log.debug("bid-outbid 이벤트 발행 성공: auctionId={}, outbidBidderId={}", auctionId, outbidBidderId);
+                        }
+                    });
+        } catch (JacksonException e) {
+            log.error("bid-outbid 이벤트 직렬화 실패: auctionId={}", auctionId, e);
+        }
+    }
+}

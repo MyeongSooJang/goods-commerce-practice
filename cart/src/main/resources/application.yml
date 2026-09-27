@@ -28,4 +28,4 @@ server:
 
 logging:
   level:
-    com.example.cartservice: DEBUG
+    com.goods.cartservice: DEBUG

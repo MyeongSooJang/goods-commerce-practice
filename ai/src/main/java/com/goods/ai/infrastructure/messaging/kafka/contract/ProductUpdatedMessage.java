@@ -1,0 +1,19 @@
+package com.goods.ai.infrastructure.messaging.kafka.contract;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+public record ProductUpdatedMessage(
+        String eventId,
+        String productId,
+        String productName,
+        String title,
+        String categoryName,
+        String description,
+        String status,
+        String sourceUpdatedAt,
+        String updatedAt,
+        String occurredAt
+) {
+}
+

@@ -1,0 +1,6 @@
+package com.goods.order.presentation.dto.response;
+
+public record MemberOrderWithdrawalSummaryResponse(
+        boolean hasActiveOrder
+) {
+}

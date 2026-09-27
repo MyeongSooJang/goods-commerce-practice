@@ -76,5 +76,5 @@ member:
 
 logging:
   level:
-    com.example.member: INFO
+    com.goods.member: INFO
     org.hibernate.SQL: WARN

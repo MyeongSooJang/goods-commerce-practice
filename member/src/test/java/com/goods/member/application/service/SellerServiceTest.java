@@ -1,0 +1,149 @@
+package com.goods.member.application.service;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import com.goods.member.application.dto.command.SellerRegisterCommand;
+import com.goods.member.application.dto.result.AccountVerificationSendResult;
+import com.goods.member.application.dto.result.SellerResult;
+import com.goods.member.domain.exception.MemberNotFoundException;
+import com.goods.member.domain.exception.SellerAlreadyRegisteredException;
+import com.goods.member.domain.exception.SellerNotFoundException;
+import com.goods.member.domain.entity.Member;
+import com.goods.member.domain.entity.Seller;
+import com.goods.member.domain.enumtype.MemberStatus;
+import com.goods.member.domain.repository.MemberRepository;
+import com.goods.member.domain.repository.SellerRepository;
+import com.goods.common.security.auth.enumtype.MemberRole;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.UUID;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+@ExtendWith(MockitoExtension.class)
+class SellerServiceTest {
+
+    @Mock
+    private SellerRepository sellerPersistencePort;
+
+    @Mock
+    private MemberRepository memberPersistencePort;
+
+    @Mock
+    private AccountVerificationService accountVerificationService;
+
+    @Test
+    void registerSeller_success_delegatesToAccountVerification() {
+        SellerService sellerService = new SellerService(sellerPersistencePort, memberPersistencePort, accountVerificationService);
+        UUID memberId = UUID.randomUUID();
+        Member member = createMember(memberId);
+        SellerRegisterCommand command = new SellerRegisterCommand("Kakao Bank", "123-456-7890");
+        AccountVerificationSendResult verificationResult = new AccountVerificationSendResult(
+                "av_test_session",
+                "PENDING",
+                "123-****-7890",
+                "482931",
+                LocalDateTime.now().plusMinutes(5),
+                0,
+                0
+        );
+
+        when(memberPersistencePort.findById(memberId)).thenReturn(Optional.of(member));
+        when(sellerPersistencePort.existsByMemberId(memberId)).thenReturn(false);
+        when(accountVerificationService.createAccountVerification(any(UUID.class), any())).thenReturn(verificationResult);
+
+        AccountVerificationSendResult response = sellerService.registerSeller(memberId, command);
+
+        assertEquals("av_test_session", response.sessionId());
+        assertEquals("PENDING", response.status());
+        assertEquals("123-****-7890", response.maskedAccountNumber());
+        assertEquals("482931", response.verificationCode());
+        verify(accountVerificationService).createAccountVerification(any(UUID.class), any());
+        verify(sellerPersistencePort, never()).save(any());
+    }
+
+    @Test
+    void registerSeller_duplicateSeller_throwsException() {
+        SellerService sellerService = new SellerService(sellerPersistencePort, memberPersistencePort, accountVerificationService);
+        UUID memberId = UUID.randomUUID();
+        when(memberPersistencePort.findById(memberId)).thenReturn(Optional.of(createMember(memberId)));
+        when(sellerPersistencePort.existsByMemberId(memberId)).thenReturn(true);
+
+        assertThrows(
+                SellerAlreadyRegisteredException.class,
+                () -> sellerService.registerSeller(memberId, new SellerRegisterCommand("Bank", "1234"))
+        );
+
+        verify(accountVerificationService, never()).createAccountVerification(any(), any());
+    }
+
+    @Test
+    void registerSeller_memberNotFound_throwsException() {
+        SellerService sellerService = new SellerService(sellerPersistencePort, memberPersistencePort, accountVerificationService);
+        UUID memberId = UUID.randomUUID();
+        when(memberPersistencePort.findById(memberId)).thenReturn(Optional.empty());
+
+        assertThrows(
+                MemberNotFoundException.class,
+                () -> sellerService.registerSeller(memberId, new SellerRegisterCommand("Bank", "1234"))
+        );
+
+        verify(accountVerificationService, never()).createAccountVerification(any(), any());
+    }
+
+    @Test
+    void getCurrentSeller_success_returnsSellerResponse() {
+        SellerService sellerService = new SellerService(sellerPersistencePort, memberPersistencePort, accountVerificationService);
+        UUID memberId = UUID.randomUUID();
+        UUID sellerId = UUID.randomUUID();
+        LocalDateTime approvedAt = LocalDateTime.now();
+        Seller seller = Seller.create(sellerId, memberId, "Kakao Bank", "123-456-7890", approvedAt);
+
+        when(memberPersistencePort.findById(memberId)).thenReturn(Optional.of(createMember(memberId)));
+        when(sellerPersistencePort.findByMemberId(memberId)).thenReturn(Optional.of(seller));
+
+        SellerResult response = sellerService.getCurrentSeller(memberId);
+
+        assertEquals(sellerId, response.sellerId());
+        assertEquals(memberId, response.memberId());
+        assertEquals("Kakao Bank", response.bankName());
+        assertEquals("123-456-7890", response.account());
+        assertEquals(approvedAt, response.approvedAt());
+    }
+
+    @Test
+    void getCurrentSeller_sellerNotFound_throwsException() {
+        SellerService sellerService = new SellerService(sellerPersistencePort, memberPersistencePort, accountVerificationService);
+        UUID memberId = UUID.randomUUID();
+
+        when(memberPersistencePort.findById(memberId)).thenReturn(Optional.of(createMember(memberId)));
+        when(sellerPersistencePort.findByMemberId(memberId)).thenReturn(Optional.empty());
+
+        assertThrows(SellerNotFoundException.class, () -> sellerService.getCurrentSeller(memberId));
+    }
+
+    private Member createMember(UUID memberId) {
+        LocalDateTime now = LocalDateTime.now();
+        return Member.create(
+                memberId,
+                "member@test.com",
+                "encoded-password",
+                "tester",
+                null,
+                null,
+                null,
+                MemberRole.USER,
+                MemberStatus.ACTIVE,
+                now,
+                now
+        );
+    }
+}
+

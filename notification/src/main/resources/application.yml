@@ -55,4 +55,4 @@ notification:
 
 logging:
   level:
-    com.example.notification: INFO
+    com.goods.notification: INFO

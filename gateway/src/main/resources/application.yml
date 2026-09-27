@@ -341,7 +341,7 @@ gateway:
 
 logging:
   level:
-    com.todaylunch.gateway: INFO
+    com.goods.gateway: INFO
     org.springframework.cloud.gateway: INFO
 
 springdoc:

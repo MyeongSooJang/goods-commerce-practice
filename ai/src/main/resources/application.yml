@@ -88,4 +88,4 @@ ai:
 
 logging:
   level:
-    com.example.ai: DEBUG
+    com.goods.ai: DEBUG

@@ -1,0 +1,12 @@
+package com.goods.payment.application.usecase;
+
+import com.goods.payment.application.dto.ChargeCreateCommand;
+import com.goods.payment.application.dto.ChargeCreateResult;
+
+/**
+ * 충전 요청 생성 유스케이스의 진입점이다.
+ */
+public interface ChargeCreateUseCase {
+
+    ChargeCreateResult createCharge(ChargeCreateCommand command);
+}

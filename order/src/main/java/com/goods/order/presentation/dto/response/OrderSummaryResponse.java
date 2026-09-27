@@ -1,0 +1,43 @@
+package com.goods.order.presentation.dto.response;
+
+import com.goods.order.domain.entity.Order;
+import com.goods.order.domain.enumtype.OrderItemStatus;
+import com.goods.order.domain.enumtype.OrderStatus;
+import com.goods.order.domain.enumtype.OrderType;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+public record OrderSummaryResponse(
+        UUID orderId,
+        String orderNumber,
+        BigDecimal totalPrice,
+        OrderStatus status,
+        OrderType orderType,
+        LocalDateTime createdAt,
+        String representativeProductName,
+        String representativeThumbnailKey,
+        Integer itemCount,
+        boolean hasOngoingReturn
+) {
+    public static OrderSummaryResponse from(Order order, String s3BaseUrl) {
+        String thumbnailKey = order.getRepresentativeThumbnailKey();
+        String thumbnailUrl = (thumbnailKey != null && !thumbnailKey.isBlank())
+                ? s3BaseUrl + "/" + thumbnailKey
+                : null;
+        boolean hasOngoingReturn = order.getItems().stream()
+                .anyMatch(item -> item.getStatus() == OrderItemStatus.RETURN_REQUESTED);
+        return new OrderSummaryResponse(
+                order.getOrderId(),
+                order.getOrderNumber(),
+                order.getTotalPrice(),
+                order.getStatus(),
+                order.getOrderType(),
+                order.getCreatedAt(),
+                order.getRepresentativeProductName(),
+                thumbnailUrl,
+                order.getItemCount(),
+                hasOngoingReturn);
+    }
+}

@@ -1,0 +1,57 @@
+package com.goods.order.infrastructure.repository;
+
+import com.goods.order.domain.entity.Order;
+import com.goods.order.domain.enumtype.OrderStatus;
+import com.goods.order.domain.enumtype.OrderType;
+import com.goods.order.domain.repository.OrderRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Repository;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+@Repository
+@RequiredArgsConstructor
+public class OrderRepositoryImpl implements OrderRepository {
+
+    private final OrderJpaRepository orderJpaRepository;
+
+    @Override
+    public Order save(Order order) {
+        return orderJpaRepository.save(order);
+    }
+
+    @Override
+    public Page<Order> findByBuyerIdAndOrderType(UUID buyerId, OrderType orderType, String keyword, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+        return orderJpaRepository.findByBuyerIdAndOrderType(buyerId, orderType, keyword, startDate, endDate, pageable);
+    }
+
+    @Override
+    public Optional<Order> findByOrderIdAndBuyerId(UUID orderId, UUID buyerId) {
+        return orderJpaRepository.findByOrderIdAndBuyerId(orderId, buyerId);
+    }
+
+    @Override
+    public Optional<Order> findByOrderId(UUID orderId) {
+        return orderJpaRepository.findByOrderId(orderId);
+    }
+
+    @Override
+    public List<Order> findByStatusAndDeliveredAtBefore(OrderStatus status, LocalDateTime threshold) {
+        return orderJpaRepository.findByStatusAndDeliveredAtBefore(status, threshold);
+    }
+
+    @Override
+    public boolean existsByOrderNumber(String orderNumber) {
+        return orderJpaRepository.existsByOrderNumber(orderNumber);
+    }
+
+    @Override
+    public Optional<Order> findByAuctionId(UUID auctionId) {
+        return orderJpaRepository.findByAuctionId(auctionId);
+    }
+}

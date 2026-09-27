@@ -1,0 +1,10 @@
+package com.goods.payment.infrastructure.client.dto.request;
+
+import java.math.BigDecimal;
+import java.util.UUID;
+
+public record OrderPaymentValidationRequest(
+        UUID buyerId,
+        BigDecimal amount
+) {
+}

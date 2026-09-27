@@ -75,4 +75,4 @@ services:
 
 logging:
   level:
-    com.example.order: DEBUG
+    com.goods.order: DEBUG

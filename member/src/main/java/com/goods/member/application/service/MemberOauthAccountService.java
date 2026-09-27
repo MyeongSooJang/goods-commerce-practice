@@ -1,0 +1,92 @@
+package com.goods.member.application.service;
+
+import com.goods.member.application.dto.result.MemberOauthAccountItemResult;
+import com.goods.member.application.dto.result.MemberOauthAccountListResult;
+import com.goods.member.application.dto.result.MemberOauthAccountUnlinkResult;
+import com.goods.member.domain.repository.MemberOauthAccountRepository;
+import com.goods.member.domain.repository.MemberRepository;
+import com.goods.member.domain.exception.LastLoginMethodRemovalNotAllowedException;
+import com.goods.member.domain.exception.MemberNotFoundException;
+import com.goods.member.domain.exception.MemberOauthAccountNotFoundException;
+import com.goods.member.domain.entity.Member;
+import com.goods.member.domain.entity.MemberOauthAccount;
+import com.goods.member.domain.enumtype.OAuthProvider;
+import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
+public class MemberOauthAccountService {
+
+    private final MemberRepository memberRepository;
+    private final MemberOauthAccountRepository memberOauthAccountRepository;
+
+    public MemberOauthAccountListResult getCurrentMemberOauthAccounts(UUID memberId) {
+        Member member = getMember(memberId);
+        List<MemberOauthAccount> accounts = memberOauthAccountRepository.findAllByMemberId(memberId);
+        boolean hasPasswordLogin = hasPasswordLogin(member);
+        boolean canRemoveLastOauthAccount = hasPasswordLogin || accounts.size() > 1;
+        boolean canUnlink = canUnlink(hasPasswordLogin, accounts.size());
+
+        List<MemberOauthAccountItemResult> results = accounts.stream()
+                .map(account -> new MemberOauthAccountItemResult(
+                        account.getOauthAccountId(),
+                        account.getProvider().name(),
+                        account.getProviderEmail(),
+                        account.getProviderNickname(),
+                        account.getCreatedAt(),
+                        account.getUpdatedAt(),
+                        canUnlink
+                ))
+                .toList();
+
+        return new MemberOauthAccountListResult(results, hasPasswordLogin, canRemoveLastOauthAccount);
+    }
+
+    @Transactional
+    public MemberOauthAccountUnlinkResult unlinkCurrentMemberOauthAccount(UUID memberId, String provider) {
+        Member member = getMember(memberId);
+        OAuthProvider oauthProvider = parseProvider(provider);
+        MemberOauthAccount account = memberOauthAccountRepository.findByMemberIdAndProvider(memberId, oauthProvider)
+                .orElseThrow(MemberOauthAccountNotFoundException::new);
+
+        List<MemberOauthAccount> accounts = memberOauthAccountRepository.findAllByMemberId(memberId);
+        if (!canUnlink(hasPasswordLogin(member), accounts.size())) {
+            throw new LastLoginMethodRemovalNotAllowedException();
+        }
+
+        memberOauthAccountRepository.delete(account);
+        return new MemberOauthAccountUnlinkResult(true, oauthProvider.name());
+    }
+
+    private Member getMember(UUID memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(MemberNotFoundException::new);
+    }
+
+    private OAuthProvider parseProvider(String provider) {
+        if (provider == null || provider.trim().isEmpty()) {
+            throw new IllegalArgumentException("provider는 필수입니다.");
+        }
+
+        try {
+            return OAuthProvider.valueOf(provider.trim().toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException exception) {
+            throw new IllegalArgumentException("지원하지 않는 OAuth 제공자입니다. " + provider);
+        }
+    }
+
+    private boolean hasPasswordLogin(Member member) {
+        return member.getPassword() != null && !member.getPassword().isBlank();
+    }
+
+    private boolean canUnlink(boolean hasPasswordLogin, int oauthAccountCount) {
+        return hasPasswordLogin || oauthAccountCount > 1;
+    }
+}
+

@@ -1,0 +1,34 @@
+package com.goods.payment.presentation.dto.response;
+
+import com.goods.payment.application.dto.PendingSellerIncomeItemResult;
+import com.goods.payment.domain.enumtype.EscrowStatus;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+/**
+ * 판매자 정산 대기 escrow 단건 응답 DTO다.
+ */
+public record PendingSellerIncomeItemResponse(
+        UUID escrowId,
+        UUID orderId,
+        BigDecimal amount,
+        EscrowStatus escrowStatus,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt
+) {
+
+    /**
+     * application 결과를 presentation 응답으로 변환한다.
+     */
+    public static PendingSellerIncomeItemResponse from(PendingSellerIncomeItemResult result) {
+        return new PendingSellerIncomeItemResponse(
+                result.escrowId(),
+                result.orderId(),
+                result.amount(),
+                result.escrowStatus(),
+                result.createdAt(),
+                result.updatedAt()
+        );
+    }
+}

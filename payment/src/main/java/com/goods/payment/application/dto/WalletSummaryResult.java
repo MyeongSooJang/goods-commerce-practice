@@ -1,0 +1,16 @@
+package com.goods.payment.application.dto;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+/**
+ * wallet 단건 요약 조회 결과다.
+ */
+public record WalletSummaryResult(
+        UUID walletId,
+        UUID memberId,
+        BigDecimal balance,
+        LocalDateTime updatedAt
+) {
+}

@@ -126,4 +126,4 @@ member:
       secret-key: ${ACCOUNT_VERIFICATION_SECRET_KEY}
 logging:
   level:
-    com.example.member: INFO
+    com.goods.member: INFO

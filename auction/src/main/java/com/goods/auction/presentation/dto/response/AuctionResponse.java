@@ -1,0 +1,42 @@
+package com.goods.auction.presentation.dto.response;
+
+import com.goods.auction.domain.entity.Auction;
+import com.goods.auction.domain.enumtype.AuctionStatus;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+public record AuctionResponse(
+        UUID auctionId,
+        UUID productId,
+        String productTitle,
+        String thumbnailKey,
+        UUID sellerId,
+        BigDecimal startPrice,
+        BigDecimal bidUnit,
+        BigDecimal currentHighestPrice,
+        LocalDateTime startedAt,
+        LocalDateTime scheduledCloseAt,
+        LocalDateTime endedAt,
+        AuctionStatus status,
+        LocalDateTime createdAt
+) {
+
+    public static AuctionResponse from(Auction auction) {
+        return new AuctionResponse(
+                auction.getAuctionId(),
+                auction.getProductId(),
+                auction.getProductTitle(),
+                auction.getThumbnailKey(),
+                auction.getSellerId(),
+                auction.getStartPrice(),
+                auction.getBidUnit(),
+                auction.getCurrentHighestPrice(),
+                auction.getStartedAt(),
+                auction.getScheduledCloseAt(),
+                auction.getEndedAt(),
+                auction.getStatus(),
+                auction.getCreatedAt()
+        );
+    }
+}

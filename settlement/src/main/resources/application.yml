@@ -33,7 +33,7 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
       properties:
-        spring.json.trusted.packages: com.example.settlement.infrastructure.messaging.kafka.contract
+        spring.json.trusted.packages: com.goods.settlement.infrastructure.messaging.kafka.contract
 
 # --- 서버 포트 ---
 server:
@@ -58,4 +58,4 @@ settlement:
 # --- 로깅 설정 (로컬: DEBUG) ---
 logging:
   level:
-    com.example.settlement: DEBUG
+    com.goods.settlement: DEBUG
