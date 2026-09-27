@@ -6,7 +6,8 @@ pipeline {
     }
 
     environment {
-        APP_SERVICES = 'product cart member order payment settlement notification gateway auction ai db-migration'
+        APP_SERVICES      = 'product cart member order payment settlement notification gateway auction ai'
+        MIGRATION_SERVICE = 'db-migration'
         COMMON_MODULES = 'common-security common-monitoring common-messaging'
 
         AWS_REGION    = 'ap-northeast-2'
@@ -194,6 +195,13 @@ pipeline {
                         sh "docker push ${ecrImage}:latest"
                     }
 
+                    // db-migration: 항상 별도 빌드/push
+                    def migrationImage = "${ECR_REGISTRY}/${ECR_NAMESPACE}/${MIGRATION_SERVICE}"
+                    sh "docker compose build ${MIGRATION_SERVICE}"
+                    sh "docker tag ${migrationImage}:latest ${migrationImage}:${imageTag}"
+                    sh "docker push ${migrationImage}:${imageTag}"
+                    sh "docker push ${migrationImage}:latest"
+
                 }
             }
         }
@@ -226,6 +234,9 @@ pipeline {
                             ssh -o StrictHostKeyChecking=no ubuntu@${APP_SERVER} '
                                 aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY} &&
                                 cd ~/app &&
+                                docker compose pull --ignore-pull-failures ${MIGRATION_SERVICE} &&
+                                docker compose up -d --no-build ${MIGRATION_SERVICE} &&
+                                docker compose wait ${MIGRATION_SERVICE} &&
                                 ${pullCmd} &&
                                 ${upCmd} &&
                                 docker image prune -f
